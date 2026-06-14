@@ -29,7 +29,7 @@ import org.hnau.commons.kotlin.coroutines.flow.state.mutable.toMutableStateFlowA
 import org.hnau.commons.kotlin.coroutines.flow.state.predetermined
 import org.hnau.commons.kotlin.coroutines.flow.state.stateFlow
 import org.hnau.commons.kotlin.coroutines.flow.state.stick
-import org.hnau.commons.kotlin.coroutines.operationOrNullIfExecuting
+import org.hnau.commons.kotlin.coroutines.operationOrInProgressIfExecuting
 import org.hnau.commons.kotlin.fold
 import org.hnau.commons.kotlin.getOrInit
 import org.hnau.commons.kotlin.logging.tryOrLog
@@ -174,14 +174,14 @@ inline fun <reified T, P : PropertyType.State<T>, D, reified S : ValueModel.Skel
                                                 PropertyMode.Manual -> true
                                                 PropertyMode.Hardware, PropertyMode.Calculated -> false
                                             },
-                                            publish = operationOrNullIfExecuting(
+                                            publish = operationOrInProgressIfExecuting(
                                                 stickableScope
-                                            ) { valueToSend ->
+                                            ) { _, valueToSend ->
                                                 val payload = logger
                                                     .tryOrLog(
                                                         log = "encoding '$valueToSend' for $topic"
                                                     ) {
-                                                        Json.Default
+                                                        Json
                                                             .encodeToString(
                                                                 serializer = type.serializer,
                                                                 value = valueToSend
@@ -189,7 +189,7 @@ inline fun <reified T, P : PropertyType.State<T>, D, reified S : ValueModel.Skel
                                                             .encodeToByteArray()
                                                     }
                                                     .getOrNull()
-                                                    ?: return@operationOrNullIfExecuting //TODO(error bubble)
+                                                    ?: return@operationOrInProgressIfExecuting //TODO(error bubble)
 
                                                 overwriteValue.value =
                                                     Timestamped.now(valueToSend)

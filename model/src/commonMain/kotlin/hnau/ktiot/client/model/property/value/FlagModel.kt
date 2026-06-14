@@ -8,13 +8,15 @@ import kotlinx.serialization.Serializable
 import org.hnau.commons.app.model.goback.GoBackHandler
 import org.hnau.commons.app.model.goback.NeverGoBackHandler
 import org.hnau.commons.gen.pipe.annotations.Pipe
+import org.hnau.commons.kotlin.coroutines.ActionOrElse
+import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
 
 class FlagModel(
     private val scope: CoroutineScope,
     dependencies: Dependencies,
     skeleton: Skeleton,
     val value: StateFlow<Boolean>,
-    val publish: StateFlow<((Boolean) -> Unit)?>,
+    val publish: StateFlow<ActionOrElse<Boolean, CancelOrInProgress.InProgress>>,
     type: PropertyType.State.Flag,
     val mutable: Boolean,
 ) : ValueModel {

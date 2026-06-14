@@ -2,6 +2,7 @@
 
 package org.hnau.ktiot.client.app
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.remember
@@ -18,8 +19,10 @@ import co.touchlab.kermit.Logger
 import co.touchlab.kermit.platformLogWriter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import org.hnau.commons.app.model.app.AppFilesDirProvider
 import org.hnau.commons.app.model.app.DesktopApp
 import org.hnau.commons.app.model.theme.ThemeBrightness
+import org.hnau.commons.app.model.theme.palette.SystemPalettes
 
 
 @OptIn(InternalComposeApi::class)
@@ -30,12 +33,13 @@ fun main() {
     val app = DesktopApp(
         scope = appScope,
         seed = createPinFinAppSeed(
-            defaultBrightness = ThemeBrightness.Dark,
+            appFilesDirProvider = AppFilesDirProvider(),
         ),
     )
     val projector = createAppProjector(
         scope = appScope,
         model = app,
+        createSystemPalettes = { SystemPalettes.None },
     )
     application {
         val scale = 2f
@@ -54,7 +58,9 @@ fun main() {
                 LocalDensity provides density,
                 LocalPlatformWindowInsets provides insets,
             ) {
-                projector.Content()
+                projector.Content(
+                    contentPadding = PaddingValues.Zero,
+                )
             }
         }
     }

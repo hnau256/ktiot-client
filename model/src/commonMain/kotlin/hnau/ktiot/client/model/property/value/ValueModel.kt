@@ -5,6 +5,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 import org.hnau.commons.app.model.goback.GoBackHandler
+import org.hnau.commons.kotlin.coroutines.ActionOrElse
+import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
 
 sealed interface ValueModel {
 
@@ -20,7 +22,7 @@ sealed interface ValueModel {
             dependencies: D,
             skeleton: S,
             value: StateFlow<T>,
-            publish: StateFlow<((T) -> Unit)?>,
+            publish: StateFlow<ActionOrElse<T, CancelOrInProgress.InProgress>>,
             type: P,
             mutable: Boolean
         ): M

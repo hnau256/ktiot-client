@@ -7,35 +7,37 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import arrow.core.Either
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.StateFlow
+import org.hnau.commons.app.projector.fractal.padding.LocalContentPadding
+import org.hnau.commons.app.projector.uikit.state.LoadableContent
+import org.hnau.commons.app.projector.uikit.state.StateContent
+import org.hnau.commons.app.projector.uikit.transition.TransitionSpec
+import org.hnau.commons.app.projector.uikit.transition.getTransitionSpecForSlide
+import org.hnau.commons.app.projector.uikit.utils.Dimens
+import org.hnau.commons.app.projector.utils.Orientation
+import org.hnau.commons.app.projector.utils.plus
+import org.hnau.commons.gen.pipe.annotations.Pipe
+import org.hnau.commons.kotlin.Loadable
+import org.hnau.commons.kotlin.coroutines.createChild
+import org.hnau.commons.kotlin.coroutines.flow.state.runningFoldState
+import org.hnau.commons.kotlin.fold
+import org.hnau.commons.kotlin.ifNull
+import org.hnau.commons.kotlin.map
+import org.hnau.commons.kotlin.valueOrElse
 import org.hnau.ktiot.client.model.screen.ScreenItemModel
 import org.hnau.ktiot.client.model.screen.ScreenModel
 import org.hnau.ktiot.client.model.utils.ChildTopic
 import org.hnau.ktiot.client.projector.property.PropertyProjector
 import org.hnau.ktiot.client.projector.screen.ScreenItemProjector.ChildButton
 import org.hnau.ktiot.client.projector.screen.ScreenItemProjector.Property
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.StateFlow
-import org.hnau.commons.app.projector.uikit.state.LoadableContent
-import org.hnau.commons.app.projector.uikit.state.StateContent
-import org.hnau.commons.app.projector.uikit.state.TransitionSpec
-import org.hnau.commons.app.projector.uikit.utils.Dimens
-import org.hnau.commons.app.projector.utils.SlideOrientation
-import org.hnau.commons.app.projector.utils.getTransitionSpecForSlide
-import org.hnau.commons.app.projector.utils.plus
-import org.hnau.commons.gen.pipe.annotations.Pipe
-import org.hnau.commons.kotlin.*
-import org.hnau.commons.kotlin.coroutines.createChild
-import org.hnau.commons.kotlin.coroutines.flow.state.runningFoldState
 import kotlin.math.sign
 
 @Immutable
@@ -63,7 +65,7 @@ class ScreenProjector(
 
         @Immutable
         data class Items(
-            val items: ImmutableList<Item>,
+            val items: List<Item>,
         ) : State {
             data class Item(
                 val scope: CoroutineScope,
@@ -132,8 +134,7 @@ class ScreenProjector(
                                     }
                                 )
                             }
-                        }
-                        .toImmutableList(),
+                        },
                 )
                 fromCache?.forEach { (_, item) -> item.scope.cancel() }
                 result
@@ -165,9 +166,7 @@ class ScreenProjector(
             )
 
     @Composable
-    fun Content(
-        contentPadding: PaddingValues,
-    ) {
+    fun Content() {
         itemsOrChild
             .collectAsState()
             .value
@@ -180,7 +179,7 @@ class ScreenProjector(
                     label = "ItemsOrChild",
                     contentKey = { it.zIndex },
                     transitionSpec = getTransitionSpecForSlide(
-                        orientation = SlideOrientation.Horizontal,
+                        orientation = Orientation.Horizontal,
                     ) {
                         (targetState.zIndex - initialState.zIndex).sign * 0.5f
                     },
@@ -188,11 +187,10 @@ class ScreenProjector(
                     when (stateLocal) {
                         is State.Child -> stateLocal
                             .projector
-                            .Content(contentPadding)
+                            .Content()
 
                         is State.Items -> Items(
                             items = stateLocal.items,
-                            contentPadding = contentPadding,
                         )
                     }
                 }
@@ -213,14 +211,13 @@ class ScreenProjector(
 
     @Composable
     private fun Items(
-        items: ImmutableList<State.Items.Item>,
-        contentPadding: PaddingValues,
+        items: List<State.Items.Item>,
     ) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(
                 minSize = 256.dp,
             ),
-            contentPadding = contentPadding + PaddingValues(Dimens.separation),
+            contentPadding = LocalContentPadding.current + PaddingValues(Dimens.separation),
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(Dimens.smallSeparation),
             horizontalArrangement = Arrangement.spacedBy(Dimens.separation),

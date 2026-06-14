@@ -24,10 +24,14 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import org.hnau.commons.app.model.goback.GoBackHandler
 import org.hnau.commons.gen.pipe.annotations.Pipe
+import org.hnau.commons.kotlin.coroutines.ActionOrElse
+import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
 import org.hnau.commons.kotlin.coroutines.flow.state.flatMapState
 import org.hnau.commons.kotlin.coroutines.flow.state.mapState
 import org.hnau.commons.kotlin.coroutines.flow.state.mapWithScope
 import org.hnau.commons.kotlin.coroutines.flow.state.scopedInState
+import org.hnau.commons.kotlin.coroutines.fold
+import org.hnau.commons.kotlin.coroutines.map
 import org.hnau.commons.kotlin.ifNull
 import org.hnau.commons.kotlin.ifTrue
 import org.hnau.commons.kotlin.serialization.MutableStateFlowSerializer
@@ -41,7 +45,7 @@ class EditableModel<
     dependencies: Dependencies,
     private val skeleton: Skeleton<VS, ES>,
     value: StateFlow<T>,
-    publish: StateFlow<((T) -> Unit)?>,
+    publish: StateFlow<ActionOrElse<T, CancelOrInProgress.InProgress>>,
     type: P,
     mutable: Boolean,
     private val createViewModelSkeleton: () -> VS,
@@ -63,7 +67,7 @@ class EditableModel<
         private val createEditModelSkeleton: (initialValue: T) -> ES,
         private val extractEditDependencies: Dependencies.() -> ED,
         private val editFactory: EditModel.Factory<T, P, ED, ES, E>,
-    ): ValueModel.Factory<
+    ) : ValueModel.Factory<
             T, P, Dependencies, Skeleton<VS, ES>,
             EditableModel<T, P, V, VS, VD, E, ES, ED>
             > {
@@ -73,7 +77,7 @@ class EditableModel<
             dependencies: Dependencies,
             skeleton: Skeleton<VS, ES>,
             value: StateFlow<T>,
-            publish: StateFlow<((T) -> Unit)?>,
+            publish: StateFlow<ActionOrElse<T, CancelOrInProgress.InProgress>>,
             type: P,
             mutable: Boolean,
         ): EditableModel<T, P, V, VS, VD, E, ES, ED> = EditableModel(
@@ -120,7 +124,7 @@ class EditableModel<
 
         data class Edit<out T, out E : EditModel<T>>(
             val model: E,
-            val save: StateFlow<StateFlow<(() -> Unit)?>?>,
+            val save: StateFlow<StateFlow<ActionOrElse<Unit, CancelOrInProgress.InProgress>?>?>,
             val cancel: () -> Unit,
         ) : State<T, Nothing, E>
 
@@ -160,12 +164,17 @@ class EditableModel<
                                 valueOrNone
                                     .map { value ->
                                         publish.mapState(saveScope) { publishOrNull ->
-                                            publishOrNull?.let { publish ->
-                                                {
-                                                    publish(value)
-                                                    switchToView()
+                                            publishOrNull.fold(
+                                                ifAction = { action ->
+                                                    ActionOrElse.Action<Unit> {
+                                                        action(value)
+                                                        switchToView()
+                                                    }
+                                                },
+                                                ifElse = { inProgress ->
+                                                    ActionOrElse.Else(inProgress)
                                                 }
-                                            }
+                                            )
                                         }
                                     }
                                     .getOrNull()

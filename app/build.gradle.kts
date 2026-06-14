@@ -20,6 +20,6 @@ kotlin {
 
 compose.desktop {
     application {
-        mainClass = "hnau.ktiot.client.app.DesktopAppKt"
+        mainClass = "org.hnau.ktiot.client.app.DesktopAppKt"
     }
 }

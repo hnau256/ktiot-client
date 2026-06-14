@@ -1,5 +1,6 @@
 package org.hnau.ktiot.client.projector.init
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import org.hnau.ktiot.client.projector.LoggedProjector
@@ -9,7 +10,9 @@ import org.hnau.ktiot.client.projector.LoginProjector
 sealed interface InitStateProjector {
 
     @Composable
-    fun Content()
+    fun Content(
+        contentPadding: PaddingValues,
+    )
 
     val key: Int
 
@@ -19,8 +22,12 @@ sealed interface InitStateProjector {
     ) : InitStateProjector {
 
         @Composable
-        override fun Content() {
-            projector.Content()
+        override fun Content(
+            contentPadding: PaddingValues,
+        ) {
+            projector.Content(
+                contentPadding = contentPadding,
+            )
         }
 
         override val key: Int
@@ -33,8 +40,12 @@ sealed interface InitStateProjector {
     ) : InitStateProjector {
 
         @Composable
-        override fun Content() {
-            projector.Content()
+        override fun Content(
+            contentPadding: PaddingValues,
+        ) {
+            projector.Content(
+                contentPadding = contentPadding,
+            )
         }
 
         override val key: Int

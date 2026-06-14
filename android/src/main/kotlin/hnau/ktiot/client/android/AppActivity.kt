@@ -7,6 +7,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.systemBars
 import androidx.lifecycle.lifecycleScope
 import org.hnau.ktiot.client.app.createAppProjector
 import org.hnau.ktiot.client.app.createPinFinAppSeed
@@ -15,13 +18,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.hnau.commons.app.model.app.AppFilesDirProvider
 import org.hnau.commons.app.model.app.AppViewModel
+import org.hnau.commons.app.model.app.getForAndroid
+import org.hnau.commons.app.model.theme.palette.SystemPalettes
 
 class AppActivity : ComponentActivity() {
     private val viewModel: AppViewModel<InitModel, InitModel.Skeleton> by viewModels {
-        AppViewModel.Companion.factory(
+        AppViewModel.factory(
             context = applicationContext,
-            seed = createPinFinAppSeed(),
+            seed = createPinFinAppSeed(
+                appFilesDirProvider = AppFilesDirProvider(
+                    context = this,
+                )
+            ),
         )
     }
 
@@ -36,9 +46,15 @@ class AppActivity : ComponentActivity() {
             createAppProjector(
                 scope = lifecycleScope,
                 model = viewModel.appModel,
+                createSystemPalettes = SystemPalettes.getForAndroid(
+                    context = this,
+                ),
             )
         setContent {
-            projector.Content()
+            val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
+            projector.Content(
+                contentPadding = systemBarsPadding,
+            )
         }
     }
 

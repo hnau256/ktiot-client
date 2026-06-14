@@ -19,16 +19,19 @@ import androidx.compose.ui.unit.dp
 import org.hnau.ktiot.client.model.LoginModel
 import org.hnau.ktiot.client.projector.utils.Button
 import org.hnau.ktiot.client.projector.utils.Localization
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
+import org.hnau.commons.app.projector.fractal.SButton
+import org.hnau.commons.app.projector.fractal.SPanel
+import org.hnau.commons.app.projector.fractal.table.STable
+import org.hnau.commons.app.projector.fractal.table.STableScope
+import org.hnau.commons.app.projector.fractal.table.Subtable
 import org.hnau.commons.app.projector.uikit.TextInput
-import org.hnau.commons.app.projector.uikit.table.Subtable
-import org.hnau.commons.app.projector.uikit.table.Table
-import org.hnau.commons.app.projector.uikit.table.TableOrientation
-import org.hnau.commons.app.projector.uikit.table.TableScope
+import org.hnau.commons.app.projector.uikit.actionOrCancel
+import org.hnau.commons.app.projector.uikit.onClick
 import org.hnau.commons.app.projector.uikit.utils.Dimens
+import org.hnau.commons.app.projector.utils.Orientation
+import org.hnau.commons.app.projector.utils.TitleOrIcon
 import org.hnau.commons.app.projector.utils.horizontalDisplayPadding
 import org.hnau.commons.app.projector.utils.verticalDisplayPadding
 import org.hnau.commons.gen.pipe.annotations.Pipe
@@ -50,7 +53,7 @@ class LoginProjector(
         val localization: Localization
     }
 
-    private val visibleItems: StateFlow<ImmutableList<Item>> = model.useCredentials.mapState(
+    private val visibleItems: StateFlow<List<Item>> = model.useCredentials.mapState(
         scope = scope,
     ) { useCredentials ->
         buildList {
@@ -65,28 +68,32 @@ class LoginProjector(
                 add(Item.User)
                 add(Item.Password)
             }
-        }.toImmutableList()
+        }
     }
 
     @Composable
-    fun Content() {
+    fun Content(
+        contentPadding: PaddingValues,
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .horizontalDisplayPadding()
                 .verticalDisplayPadding()
-                .imePadding(),
+                .imePadding()
+                .padding(contentPadding),
             verticalArrangement = Arrangement.spacedBy(
                 space = Dimens.separation,
                 alignment = Alignment.CenterVertically,
             ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Table(
+            val useCredentials by model.useCredentials.collectAsState()
+            STable(
+                orientation = Orientation.Vertical,
                 modifier = Modifier.requiredWidthIn(
                     max = 320.dp,
                 ),
-                orientation = TableOrientation.Vertical,
             ) {
                 AddressWithPort()
                 val useCredentials by model.useCredentials.collectAsState()
@@ -99,117 +106,113 @@ class LoginProjector(
                     Password(model.password)
                 }
             }
-            model
-                .loginOrLogginingOrDisabled
-                .collectAsState()
-                .value
-                .Button { Text(dependencies.localization.login) }
+            SButton(
+                actionOrElseOrDisabled = model
+                    .loginOrLogginingOrDisabled
+                    .collectAsState()
+                    .value
+                    ?.collectAsState()
+                    ?.value,
+                titleOrIcon = TitleOrIcon.Title(
+                    dependencies.localization.login,
+                )
+            )
         }
     }
 
     @Composable
-    private fun TableScope.AddressWithPort() {
-        Subtable {
+    private fun STableScope.AddressWithPort() {
 
-            Cell { modifier ->
+        SCell {
+            SPanel {
                 val focusRequester = remember { FocusRequester() }
                 Input(
                     label = dependencies.localization.address,
                     input = model.address,
-                    shape = shape,
                     keyboardType = KeyboardType.Uri,
-                    modifier = modifier
-                        .weight(3f)
+                    modifier = Modifier
                         .focusRequester(focusRequester),
                 )
                 LaunchedEffect(focusRequester) { focusRequester.requestFocus() }
             }
+        }
 
-            Cell { modifier ->
+        SCell {
+            SPanel {
                 Input(
                     label = dependencies.localization.port,
                     input = model.port,
-                    shape = shape,
                     keyboardType = KeyboardType.Decimal,
-                    modifier = modifier.weight(1f),
                 )
             }
         }
     }
 
     @Composable
-    private fun TableScope.ClientId(
+    private fun STableScope.ClientId(
         isLast: Boolean,
     ) {
-        Cell { modifier ->
-            Input(
-                modifier = modifier,
-                label = dependencies.localization.client_id,
-                input = model.clientId,
-                shape = shape,
-                keyboardType = KeyboardType.Ascii,
-                isLast = isLast,
-            )
-        }
-    }
-
-    @Composable
-    private fun TableScope.AuthSwitcher() {
-        Cell { modifier ->
-            val shape = shape
-            Row(
-                modifier = modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceContainerLow,
-                        shape = shape,
-                    )
-                    .padding(
-                        horizontal = Dimens.separation,
-                        vertical = Dimens.smallSeparation,
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = dependencies.localization.credentials,
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Switch(
-                    checked = model.useCredentials.collectAsState().value,
-                    onCheckedChange = { model.useCredentials.value = it },
+        SCell {
+            SPanel {
+                Input(
+                    label = dependencies.localization.client_id,
+                    input = model.clientId,
+                    keyboardType = KeyboardType.Ascii,
+                    isLast = isLast,
                 )
             }
         }
     }
 
     @Composable
-    private fun TableScope.User(
-        input: LoginModel.Input,
-    ) {
-        Cell { modifier ->
-            Input(
-                modifier = modifier,
-                label = dependencies.localization.user,
-                input = input,
-                shape = shape,
-                keyboardType = KeyboardType.Email,
-            )
+    private fun STableScope.AuthSwitcher() {
+        SCell {
+            SPanel {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = dependencies.localization.credentials,
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Switch(
+                        checked = model.useCredentials.collectAsState().value,
+                        onCheckedChange = { model.useCredentials.value = it },
+                    )
+                }
+            }
         }
     }
 
     @Composable
-    private fun TableScope.Password(
+    private fun STableScope.User(
         input: LoginModel.Input,
     ) {
-        Cell { modifier ->
-            Input(
-                modifier = modifier,
-                label = dependencies.localization.password,
-                input = input,
-                shape = shape,
-                keyboardType = KeyboardType.Password,
-                isLast = true,
-            )
+        SCell {
+            SPanel {
+                Input(
+                    label = dependencies.localization.user,
+                    input = input,
+                    keyboardType = KeyboardType.Email,
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun STableScope.Password(
+        input: LoginModel.Input,
+    ) {
+        SCell {
+            SPanel {
+                Input(
+                    label = dependencies.localization.password,
+                    input = input,
+                    keyboardType = KeyboardType.Password,
+                    isLast = true,
+                )
+            }
         }
     }
 
@@ -217,7 +220,6 @@ class LoginProjector(
     private fun Input(
         label: String,
         input: LoginModel.Input,
-        shape: Shape,
         keyboardType: KeyboardType,
         modifier: Modifier = Modifier,
         isLast: Boolean = false,
@@ -225,7 +227,6 @@ class LoginProjector(
         TextInput(
             label = { Text(label) },
             modifier = modifier,
-            shape = shape,
             value = input.editingString,
             isError = input.correct.collectAsState().value.not(),
             keyboardActions = KeyboardActions(
@@ -235,6 +236,7 @@ class LoginProjector(
                             .loginOrLogginingOrDisabled
                             .value
                             ?.value
+                            ?.onClick
                             ?.invoke()
                     }
                 }

@@ -13,6 +13,7 @@ import org.hnau.ktiot.client.projector.utils.Localization
 import kotlinx.coroutines.CoroutineScope
 import org.hnau.commons.app.projector.uikit.utils.Dimens
 import org.hnau.commons.gen.pipe.annotations.Pipe
+import org.hnau.commons.kotlin.coroutines.fold
 import org.hnau.commons.kotlin.foldBoolean
 
 @Immutable
@@ -68,7 +69,12 @@ class FlagProjector(
                             vertical = Dimens.smallSeparation,
                         ),
                         checked = value,
-                        onCheckedChange = { model.publish.value?.invoke(it) },
+                        onCheckedChange = { value ->
+                            model.publish.value.fold(
+                                ifAction = { publish -> publish.invoke(value) },
+                                ifElse = {}
+                            )
+                        },
                         enabled = model.publish.collectAsState().value != null,
                     )
                 }

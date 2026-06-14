@@ -11,6 +11,16 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.StateFlow
+import org.hnau.commons.app.projector.fractal.SButton
+import org.hnau.commons.app.projector.utils.Drawable
+import org.hnau.commons.app.projector.utils.Icon
+import org.hnau.commons.app.projector.utils.TitleOrIcon
+import org.hnau.commons.gen.pipe.annotations.Pipe
+import org.hnau.commons.kotlin.coroutines.ActionOrElse
+import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
+import org.hnau.commons.kotlin.coroutines.flow.state.mapWithScope
 import org.hnau.ktiot.client.model.property.value.EditableModel
 import org.hnau.ktiot.client.model.property.value.editable.EditModel
 import org.hnau.ktiot.client.model.property.value.editable.NumberEditModel
@@ -23,13 +33,7 @@ import org.hnau.ktiot.client.projector.property.value.editable.NumberEditProject
 import org.hnau.ktiot.client.projector.property.value.editable.NumberViewProjector
 import org.hnau.ktiot.client.projector.property.value.editable.TextEditProjector
 import org.hnau.ktiot.client.projector.property.value.editable.TextViewProjector
-import org.hnau.ktiot.client.projector.utils.Button
 import org.hnau.ktiot.scheme.PropertyType
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.StateFlow
-import org.hnau.commons.app.projector.utils.Icon
-import org.hnau.commons.gen.pipe.annotations.Pipe
-import org.hnau.commons.kotlin.coroutines.flow.state.mapWithScope
 
 @Immutable
 class EditableProjector<
@@ -67,7 +71,7 @@ class EditableProjector<
 
         data class Edit(
             override val projector: ContentProjector,
-            val save: StateFlow<StateFlow<(() -> Unit)?>?>,
+            val save: StateFlow<StateFlow<ActionOrElse<Unit, CancelOrInProgress.InProgress>?>?>,
             val cancel: () -> Unit,
         ) : State
     }
@@ -161,12 +165,14 @@ class EditableProjector<
             Icon(Icons.Filled.Cancel)
         }
 
-        val saveOrCancel by state.save.collectAsState()
-        saveOrCancel.Button { leading, onClick, enabled ->
-            TextButton(
-                onClick = { onClick?.invoke() },
-                enabled = enabled,
-            ) { Icon(Icons.Filled.Done) }
-        }
+        val saveOrCancel = state.save
+            .collectAsState().value
+            ?.collectAsState()?.value
+        SButton(
+            actionOrElseOrDisabled = saveOrCancel,
+            titleOrIcon = TitleOrIcon.Icon(
+                Drawable.Vector(Icons.Filled.Done)
+            )
+        )
     }
 }

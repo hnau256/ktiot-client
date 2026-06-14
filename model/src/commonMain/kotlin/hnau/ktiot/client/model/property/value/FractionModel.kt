@@ -11,17 +11,21 @@ import kotlinx.serialization.Serializable
 import org.hnau.commons.app.model.goback.GoBackHandler
 import org.hnau.commons.app.model.goback.NeverGoBackHandler
 import org.hnau.commons.gen.pipe.annotations.Pipe
+import org.hnau.commons.kotlin.coroutines.ActionOrElse
+import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
 import org.hnau.commons.kotlin.coroutines.flow.state.flatMapState
 import org.hnau.commons.kotlin.coroutines.flow.state.mapState
 import org.hnau.commons.kotlin.coroutines.flow.state.mutable.toMutableStateFlowAsInitial
+import org.hnau.commons.kotlin.coroutines.fold
 import org.hnau.commons.kotlin.foldNullable
+import kotlin.time.Duration.Companion.milliseconds
 
 class FractionModel(
     private val scope: CoroutineScope,
     dependencies: Dependencies,
     skeleton: Skeleton,
     value: StateFlow<Float>,
-    private val publish: StateFlow<((Float) -> Unit)?>,
+    private val publish: StateFlow<ActionOrElse<Float, CancelOrInProgress.InProgress>>,
     val type: PropertyType.State.Fraction,
     val mutable: Boolean,
 ) : ValueModel {
@@ -54,17 +58,25 @@ class FractionModel(
         overwriteValue.value = newValue
     }
 
-    val isPublishing: StateFlow<Boolean> =
-        publish.mapState(scope) { it == null }
+    val isPublishing: StateFlow<Boolean> = publish.mapState(scope) { publishOrInProgress ->
+        publishOrInProgress.fold(
+            ifAction = { false },
+            ifElse = { true },
+        )
+    }
 
     fun publish() {
-        val publish = publish.value ?: return
         val valueToPublish = overwriteValue.value ?: return
-        publish(valueToPublish)
-        scope.launch {//TODO
-            delay(10)
-            overwriteValue.value = null
-        }
+        publish.value.fold(
+            ifElse = {},
+            ifAction = { publish ->
+                publish(valueToPublish)
+                scope.launch {//TODO
+                    delay(10.milliseconds)
+                    overwriteValue.value = null
+                }
+            }
+        )
     }
 
     override val goBackHandler: GoBackHandler

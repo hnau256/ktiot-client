@@ -2,6 +2,7 @@ package org.hnau.ktiot.client.projector
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -22,11 +23,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import org.hnau.commons.app.projector.fractal.SButton
 import org.hnau.commons.app.projector.uikit.ErrorPanel
 import org.hnau.commons.app.projector.uikit.state.StateContent
-import org.hnau.commons.app.projector.uikit.state.TransitionSpec
+import org.hnau.commons.app.projector.uikit.transition.TransitionSpec
 import org.hnau.commons.app.projector.uikit.utils.Dimens
+import org.hnau.commons.app.projector.utils.TitleOrIcon
 import org.hnau.commons.gen.pipe.annotations.Pipe
+import org.hnau.commons.kotlin.coroutines.ActionOrElse
+import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
 import org.hnau.commons.kotlin.coroutines.flow.state.mapWithScope
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -54,14 +59,14 @@ class LoggedProjector(
 
         @Immutable
         data class Connecting(
-            val logout: StateFlow<(() -> Unit)?>,
+            val logout: StateFlow<ActionOrElse<Unit, CancelOrInProgress.InProgress>>,
         ) : State
 
         @Immutable
         data class WaitingForReconnection(
             val errorMessage: String?,
             val beforeReconnection: StateFlow<Duration>,
-            val logout: StateFlow<(() -> Unit)?>,
+            val logout: StateFlow<ActionOrElse<Unit, CancelOrInProgress.InProgress>>,
             val reconnectNow: () -> Unit,
         ) : State
 
@@ -109,7 +114,9 @@ class LoggedProjector(
         }
 
     @Composable
-    fun Content() {
+    fun Content(
+        contentPadding: PaddingValues,
+    ) {
         state
             .collectAsState()
             .value
@@ -126,29 +133,39 @@ class LoggedProjector(
                 },
             ) { state ->
                 when (state) {
-                    is State.Connected ->
-                        state.projector.Content()
+                    is State.Connected -> state.projector.Content(
+                        contentPadding = contentPadding,
+                    )
 
-                    is State.Connecting ->
-                        Connecting(state)
+                    is State.Connecting -> Connecting(
+                        state = state,
+                        contentPadding = contentPadding,
+                    )
 
-                    is State.WaitingForReconnection ->
-                        WaitingForReconnection(state)
+                    is State.WaitingForReconnection -> WaitingForReconnection(
+                        state = state,
+                        contentPadding = contentPadding,
+                    )
                 }
             }
     }
 
     @Composable
     private fun LogoutButton(
-        logout: StateFlow<(() -> Unit)?>,
+        logout: StateFlow<ActionOrElse<Unit, CancelOrInProgress.InProgress>>,
     ) {
-        logout.Button { Text(dependencies.localization.logout) }
+        SButton(
+            actionOrElseOrDisabled = logout.collectAsState().value,
+            titleOrIcon = TitleOrIcon.Title(dependencies.localization.logout)
+        )
     }
 
     @Composable
     private fun Connecting(
         state: State.Connecting,
+        contentPadding: PaddingValues,
     ) {
+        //TODO handle contentPadding
         ErrorPanel(
             title = {
                 Column(
@@ -170,7 +187,9 @@ class LoggedProjector(
     @Composable
     private fun WaitingForReconnection(
         state: State.WaitingForReconnection,
+        contentPadding: PaddingValues,
     ) {
+        //TODO handle contentPadding
         ErrorPanel(
             title = {
                 Column(

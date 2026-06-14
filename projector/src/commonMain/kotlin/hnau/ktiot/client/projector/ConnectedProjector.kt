@@ -1,17 +1,14 @@
 package org.hnau.ktiot.client.projector
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.Modifier
+import kotlinx.coroutines.CoroutineScope
+import org.hnau.commons.app.projector.fractal.SScreen
+import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.ktiot.client.model.ConnectedModel
 import org.hnau.ktiot.client.projector.screen.ScreenProjector
-import org.hnau.ktiot.client.projector.utils.BackButtonWidth
-import kotlinx.coroutines.CoroutineScope
-import org.hnau.commons.app.projector.uikit.FullScreen
-import org.hnau.commons.app.projector.uikit.TopBar
-import org.hnau.commons.gen.pipe.annotations.Pipe
 
 @Immutable
 class ConnectedProjector(
@@ -24,8 +21,6 @@ class ConnectedProjector(
     @Pipe
     interface Dependencies {
 
-        val backButtonWidth: BackButtonWidth
-
         fun screen(): ScreenProjector.Dependencies
     }
 
@@ -37,18 +32,14 @@ class ConnectedProjector(
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun Content() {
-        FullScreen(
-            backButtonWidth = dependencies.backButtonWidth.width,
-            top = { contentPadding ->
-                TopBar(
-                    modifier = Modifier.padding(contentPadding),
-                ) {}
-            },
-        ) { contentPadding ->
-            rootScreen.Content(
-                contentPadding = contentPadding,
-            )
+    fun Content(
+        contentPadding: PaddingValues,
+    ) {
+        SScreen(
+            contentPadding = contentPadding,
+            title = {}
+        ) {
+            rootScreen.Content()
         }
     }
 }
