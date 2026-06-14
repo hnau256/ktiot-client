@@ -8,10 +8,10 @@
         android:label="@string/ktiot"
         android:theme="@style/Theme.KtIoT"
         android:enableOnBackInvokedCallback="true"
-        android:name=".client.android.App">
+        android:name="org.hnau.ktiot.client.android.App">
 
         <activity
-            android:name="hnau.ktiot.client.android.AppActivity"
+            android:name="org.hnau.ktiot.client.android.AppActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|mnc|colorMode|density|fontScale|fontWeightAdjustment|keyboard|layoutDirection|locale|mcc|navigation|smallestScreenSize|touchscreen|uiMode"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">

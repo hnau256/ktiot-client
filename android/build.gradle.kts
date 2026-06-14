@@ -1,18 +1,15 @@
 import java.util.Properties
 
 plugins {
-    id("com.android.application") //TODO remove
-    id("org.jetbrains.kotlin.android") //TODO remove
-    id(hnau.plugins.ksp.get().pluginId)
     id(hnau.plugins.hnau.jvmAndroidApp.get().pluginId)
 }
 
 android {
-    namespace = "hnau.ktiot"
-    compileSdk = 36
+    namespace = "hnau.commons.app.test.android"
 
     defaultConfig {
-        minSdk = 23
+        applicationId = "hnau.ktiot"
+
         val versionPropsFile = file("version.properties")
         val versionProps =
             Properties().apply {
@@ -57,20 +54,12 @@ android {
             applicationIdSuffix = ".qa"
         }
     }
-
-    buildFeatures {
-        compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "2.0.0"
-    }
 }
 
 dependencies {
     implementation(hnau.commons.app.projector)
     implementation(hnau.commons.app.model)
-    implementation(project(":model"))
     implementation(project(":projector"))
+    implementation(project(":model"))
     implementation(project(":app"))
 }

@@ -42,14 +42,13 @@ class AppActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         initOnBackPressedDispatcherCallback()
-        val projector =
-            createAppProjector(
-                scope = lifecycleScope,
-                model = viewModel.appModel,
-                createSystemPalettes = SystemPalettes.getForAndroid(
-                    context = this,
-                ),
-            )
+        val projector = createAppProjector(
+            scope = lifecycleScope,
+            model = viewModel.appModel,
+            createSystemPalettes = SystemPalettes.getForAndroid(
+                context = this,
+            ),
+        )
         setContent {
             val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
             projector.Content(
