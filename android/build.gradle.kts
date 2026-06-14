@@ -5,8 +5,6 @@ plugins {
 }
 
 android {
-    namespace = "hnau.commons.app.test.android"
-
     defaultConfig {
         applicationId = "hnau.ktiot"
 
