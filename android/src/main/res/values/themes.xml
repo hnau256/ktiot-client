@@ -1,0 +1,15 @@
+<resources>
+
+    <style name="Theme.KtIoT.Base" parent="Theme.AppCompat">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:navigationBarColor">@color/status_navigation_bars_compat</item>
+        <item name="android:statusBarColor">@color/status_navigation_bars_compat</item>
+    </style>
+
+    <style name="Theme.KtIoT.DayBase" parent="Theme.KtIoT.Base">
+        <item name="android:windowBackground">@color/background_day</item>
+    </style>
+
+    <style name="Theme.KtIoT" parent="Theme.KtIoT.DayBase" />
+</resources>

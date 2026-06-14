@@ -1,0 +1,1 @@
+login_state:{"type":"logged","loginInfo":{"address":"192.168.0.13","clientId":"dd416a2d-2526-4e3e-a4dc-8360bae17a68","port":1883,"auth":null}}

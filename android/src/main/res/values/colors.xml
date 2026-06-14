@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="status_navigation_bars_compat">#77000000</color>
+    <color name="background_day">#f7f7f7</color>
+    <color name="background_night">#090909</color>
+</resources>

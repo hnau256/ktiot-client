@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1067221089840",
+    "project_id": "hnau-ktiot",
+    "storage_bucket": "hnau-ktiot.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1067221089840:android:e6c2acb71e6536a838f7f5",
+        "android_client_info": {
+          "package_name": "hnau.ktiot.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFgi6-E9qeK86fRn-MovqCL8-bZqj8DGM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1067221089840:android:aa3fe61742bc0f7f38f7f5",
+        "android_client_info": {
+          "package_name": "hnau.ktiot.qa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFgi6-E9qeK86fRn-MovqCL8-bZqj8DGM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

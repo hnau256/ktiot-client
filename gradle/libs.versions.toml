@@ -1,0 +1,6 @@
+[versions]
+ktiot = "1.9.0"
+
+[libraries]
+ktiot-mqtt = { module = "org.hnau.ktiot-commons:ktiot-commons-mqtt", version.ref = "ktiot" }
+ktiot-scheme = { module = "org.hnau.ktiot-commons:ktiot-commons-scheme", version.ref = "ktiot" }
