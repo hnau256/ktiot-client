@@ -7,16 +7,6 @@ package org.hnau.ktiot.client.model.screen
 import arrow.core.Either
 import arrow.core.identity
 import arrow.core.toNonEmptyListOrNull
-import org.hnau.ktiot.mqtt.types.MqttSession
-import org.hnau.ktiot.mqtt.types.topic.Topic
-import org.hnau.ktiot.client.model.property.PropertyModel
-import org.hnau.ktiot.client.model.property.toTitle
-import org.hnau.ktiot.client.model.utils.ChildTopic
-import org.hnau.ktiot.client.model.utils.MutableMapSerializer
-import org.hnau.ktiot.client.model.utils.asChild
-import org.hnau.ktiot.scheme.Element
-import org.hnau.ktiot.scheme.SchemeConstants
-import org.hnau.ktiot.scheme.ktiotElements
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -48,6 +38,16 @@ import org.hnau.commons.kotlin.it
 import org.hnau.commons.kotlin.logging.tryOrLog
 import org.hnau.commons.kotlin.map
 import org.hnau.commons.kotlin.serialization.MutableStateFlowSerializer
+import org.hnau.ktiot.client.model.property.PropertyModel
+import org.hnau.ktiot.client.model.property.toTitle
+import org.hnau.ktiot.client.model.utils.ChildTopic
+import org.hnau.ktiot.client.model.utils.MutableMapSerializer
+import org.hnau.ktiot.client.model.utils.asChild
+import org.hnau.ktiot.mqtt.types.MqttSession
+import org.hnau.ktiot.mqtt.types.topic.Topic
+import org.hnau.ktiot.scheme.Element
+import org.hnau.ktiot.scheme.SchemeConstants
+import org.hnau.ktiot.scheme.ktiotElements
 
 @Loggable
 class ScreenModel(

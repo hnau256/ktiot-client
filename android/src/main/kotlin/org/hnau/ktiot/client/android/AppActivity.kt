@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.systemBars
 import androidx.lifecycle.lifecycleScope
-import org.hnau.ktiot.client.app.createAppProjector
-import org.hnau.ktiot.client.app.createPinFinAppSeed
-import org.hnau.ktiot.client.model.init.InitModel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -22,6 +19,9 @@ import org.hnau.commons.app.model.app.AppFilesDirProvider
 import org.hnau.commons.app.model.app.AppViewModel
 import org.hnau.commons.app.model.app.getForAndroid
 import org.hnau.commons.app.model.theme.palette.SystemPalettes
+import org.hnau.ktiot.client.app.createAppProjector
+import org.hnau.ktiot.client.app.createPinFinAppSeed
+import org.hnau.ktiot.client.model.init.InitModel
 
 class AppActivity : ComponentActivity() {
     private val viewModel: AppViewModel<InitModel, InitModel.Skeleton> by viewModels {

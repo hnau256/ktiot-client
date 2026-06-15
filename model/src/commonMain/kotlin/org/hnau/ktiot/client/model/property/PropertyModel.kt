@@ -1,6 +1,14 @@
 package org.hnau.ktiot.client.model.property
 
-import org.hnau.ktiot.mqtt.types.MqttSession
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.serialization.Serializable
+import org.hnau.commons.app.model.goback.GoBackHandler
+import org.hnau.commons.app.model.goback.NeverGoBackHandler
+import org.hnau.commons.gen.pipe.annotations.Pipe
+import org.hnau.commons.kotlin.Loadable
+import org.hnau.commons.kotlin.coroutines.flow.state.flatMapState
+import org.hnau.commons.kotlin.fold
 import org.hnau.ktiot.client.model.property.value.EditableModel
 import org.hnau.ktiot.client.model.property.value.FlagModel
 import org.hnau.ktiot.client.model.property.value.FractionModel
@@ -14,18 +22,10 @@ import org.hnau.ktiot.client.model.property.value.editable.TextEditModel
 import org.hnau.ktiot.client.model.property.value.editable.TextViewModel
 import org.hnau.ktiot.client.model.property.value.editable.ViewModel
 import org.hnau.ktiot.client.model.utils.ChildTopic
+import org.hnau.ktiot.mqtt.types.MqttSession
 import org.hnau.ktiot.scheme.Element
 import org.hnau.ktiot.scheme.PropertyMode
 import org.hnau.ktiot.scheme.PropertyType
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.serialization.Serializable
-import org.hnau.commons.app.model.goback.GoBackHandler
-import org.hnau.commons.app.model.goback.NeverGoBackHandler
-import org.hnau.commons.gen.pipe.annotations.Pipe
-import org.hnau.commons.kotlin.Loadable
-import org.hnau.commons.kotlin.coroutines.flow.state.flatMapState
-import org.hnau.commons.kotlin.fold
 
 
 class PropertyModel(

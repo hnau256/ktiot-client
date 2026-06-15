@@ -1,6 +1,5 @@
 package org.hnau.ktiot.client.model.property.value
 
-import org.hnau.ktiot.scheme.PropertyType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.SerialName
@@ -10,6 +9,7 @@ import org.hnau.commons.app.model.goback.NeverGoBackHandler
 import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.coroutines.ActionOrElse
 import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
+import org.hnau.ktiot.scheme.PropertyType
 
 class FlagModel(
     private val scope: CoroutineScope,

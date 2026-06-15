@@ -11,10 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import org.hnau.ktiot.client.model.utils.ChildTopic
-import org.hnau.ktiot.client.projector.property.PropertyProjector
 import org.hnau.commons.app.projector.uikit.utils.Dimens
 import org.hnau.commons.app.projector.utils.Icon
+import org.hnau.ktiot.client.model.utils.ChildTopic
+import org.hnau.ktiot.client.projector.property.PropertyProjector
 
 @Immutable
 sealed interface ScreenItemProjector {

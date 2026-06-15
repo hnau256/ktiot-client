@@ -9,13 +9,6 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import arrow.core.serialization.EitherSerializer
-import org.hnau.ktiot.client.model.property.value.editable.EditModel
-import org.hnau.ktiot.client.model.property.value.editable.NumberEditModel
-import org.hnau.ktiot.client.model.property.value.editable.NumberViewModel
-import org.hnau.ktiot.client.model.property.value.editable.TextEditModel
-import org.hnau.ktiot.client.model.property.value.editable.TextViewModel
-import org.hnau.ktiot.client.model.property.value.editable.ViewModel
-import org.hnau.ktiot.scheme.PropertyType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,10 +24,16 @@ import org.hnau.commons.kotlin.coroutines.flow.state.mapState
 import org.hnau.commons.kotlin.coroutines.flow.state.mapWithScope
 import org.hnau.commons.kotlin.coroutines.flow.state.scopedInState
 import org.hnau.commons.kotlin.coroutines.fold
-import org.hnau.commons.kotlin.coroutines.map
 import org.hnau.commons.kotlin.ifNull
 import org.hnau.commons.kotlin.ifTrue
 import org.hnau.commons.kotlin.serialization.MutableStateFlowSerializer
+import org.hnau.ktiot.client.model.property.value.editable.EditModel
+import org.hnau.ktiot.client.model.property.value.editable.NumberEditModel
+import org.hnau.ktiot.client.model.property.value.editable.NumberViewModel
+import org.hnau.ktiot.client.model.property.value.editable.TextEditModel
+import org.hnau.ktiot.client.model.property.value.editable.TextViewModel
+import org.hnau.ktiot.client.model.property.value.editable.ViewModel
+import org.hnau.ktiot.scheme.PropertyType
 
 class EditableModel<
         T, P : PropertyType.State<T>,

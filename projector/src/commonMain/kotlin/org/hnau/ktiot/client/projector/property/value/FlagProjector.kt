@@ -8,13 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import org.hnau.ktiot.client.model.property.value.FlagModel
-import org.hnau.ktiot.client.projector.utils.Localization
 import kotlinx.coroutines.CoroutineScope
 import org.hnau.commons.app.projector.uikit.utils.Dimens
 import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.coroutines.fold
 import org.hnau.commons.kotlin.foldBoolean
+import org.hnau.ktiot.client.model.property.value.FlagModel
+import org.hnau.ktiot.client.projector.utils.Localization
 
 @Immutable
 class FlagProjector(

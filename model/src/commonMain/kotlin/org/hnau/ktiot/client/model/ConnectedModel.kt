@@ -4,8 +4,6 @@
 
 package org.hnau.ktiot.client.model
 
-import org.hnau.ktiot.mqtt.types.topic.Topic
-import org.hnau.ktiot.client.model.screen.ScreenModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -14,6 +12,8 @@ import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.getOrInit
 import org.hnau.commons.kotlin.serialization.MutableStateFlowSerializer
 import org.hnau.commons.kotlin.toAccessor
+import org.hnau.ktiot.client.model.screen.ScreenModel
+import org.hnau.ktiot.mqtt.types.topic.Topic
 
 class ConnectedModel(
     scope: CoroutineScope,

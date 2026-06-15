@@ -21,7 +21,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import org.hnau.commons.app.model.app.AppFilesDirProvider
 import org.hnau.commons.app.model.app.DesktopApp
-import org.hnau.commons.app.model.theme.ThemeBrightness
 import org.hnau.commons.app.model.theme.palette.SystemPalettes
 
 

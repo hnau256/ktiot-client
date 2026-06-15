@@ -6,7 +6,6 @@ package org.hnau.ktiot.client.model.property.value.editable
 
 import arrow.core.Option
 import arrow.core.some
-import org.hnau.ktiot.scheme.PropertyType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +20,7 @@ import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.coroutines.flow.state.mapState
 import org.hnau.commons.kotlin.coroutines.flow.state.mutable.toMutableStateFlowAsInitial
 import org.hnau.commons.kotlin.serialization.MutableStateFlowSerializer
+import org.hnau.ktiot.scheme.PropertyType
 
 class TextViewModel(
     scope: CoroutineScope,

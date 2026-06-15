@@ -7,6 +7,7 @@ data class Localization(
     val address: String = "Адрес",
     val addressIsIncorrectError: String = "Некорректный формат адреса",
     val port: String = "Порт",
+    val protocol: String = "Протокол",
     val portIsIncorrectError: String = "Некорректный порт",
     val client_id: String = "Идентификатор клиента",
     val clientIdIsEmptyError: String = "Идентификатор клиента не должен быть пустым",

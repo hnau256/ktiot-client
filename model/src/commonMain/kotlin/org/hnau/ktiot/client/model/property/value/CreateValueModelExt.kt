@@ -4,13 +4,6 @@ import arrow.core.None
 import arrow.core.right
 import arrow.core.toOption
 import co.touchlab.kermit.Logger
-import org.hnau.ktiot.client.model.property.PropertyModel
-import org.hnau.ktiot.client.model.property.value.editable.EditModel
-import org.hnau.ktiot.client.model.property.value.editable.ViewModel
-import org.hnau.ktiot.client.model.utils.ChildTopic
-import org.hnau.ktiot.client.model.utils.Timestamped
-import org.hnau.ktiot.scheme.PropertyMode
-import org.hnau.ktiot.scheme.PropertyType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,6 +28,13 @@ import org.hnau.commons.kotlin.getOrInit
 import org.hnau.commons.kotlin.logging.tryOrLog
 import org.hnau.commons.kotlin.shrinkType
 import org.hnau.commons.kotlin.toAccessor
+import org.hnau.ktiot.client.model.property.PropertyModel
+import org.hnau.ktiot.client.model.property.value.editable.EditModel
+import org.hnau.ktiot.client.model.property.value.editable.ViewModel
+import org.hnau.ktiot.client.model.utils.ChildTopic
+import org.hnau.ktiot.client.model.utils.Timestamped
+import org.hnau.ktiot.scheme.PropertyMode
+import org.hnau.ktiot.scheme.PropertyType
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 

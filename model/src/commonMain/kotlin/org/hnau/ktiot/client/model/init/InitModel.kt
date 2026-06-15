@@ -1,7 +1,5 @@
 package org.hnau.ktiot.client.model.init
 
-import org.hnau.ktiot.client.model.LoggedModel
-import org.hnau.ktiot.client.model.LoginModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
@@ -27,6 +25,8 @@ import org.hnau.commons.kotlin.getOrInit
 import org.hnau.commons.kotlin.mapper.toMapper
 import org.hnau.commons.kotlin.shrinkType
 import org.hnau.commons.kotlin.toAccessor
+import org.hnau.ktiot.client.model.LoggedModel
+import org.hnau.ktiot.client.model.LoginModel
 
 
 class InitModel(

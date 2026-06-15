@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import kotlinx.coroutines.CoroutineScope
-import org.hnau.commons.app.projector.fractal.SPanel
 import org.hnau.commons.app.projector.fractal.input.InputProjector
 import org.hnau.commons.app.projector.fractal.input.type.toInputProjectorPrototype
 import org.hnau.commons.app.projector.fractal.table.STableScope

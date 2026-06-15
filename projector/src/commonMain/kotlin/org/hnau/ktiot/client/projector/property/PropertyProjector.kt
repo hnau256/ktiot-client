@@ -16,14 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.hnau.ktiot.client.model.property.PropertyModel
-import org.hnau.ktiot.client.model.property.value.EditableModel
-import org.hnau.ktiot.client.model.property.value.FlagModel
-import org.hnau.ktiot.client.model.property.value.FractionModel
-import org.hnau.ktiot.client.projector.property.value.EditableProjector
-import org.hnau.ktiot.client.projector.property.value.FlagProjector
-import org.hnau.ktiot.client.projector.property.value.FractionProjector
-import org.hnau.ktiot.client.projector.property.value.ValueProjector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import org.hnau.commons.app.projector.uikit.utils.Dimens
@@ -34,6 +26,14 @@ import org.hnau.commons.kotlin.coroutines.flow.state.mapState
 import org.hnau.commons.kotlin.coroutines.flow.state.scopedInState
 import org.hnau.commons.kotlin.fold
 import org.hnau.commons.kotlin.map
+import org.hnau.ktiot.client.model.property.PropertyModel
+import org.hnau.ktiot.client.model.property.value.EditableModel
+import org.hnau.ktiot.client.model.property.value.FlagModel
+import org.hnau.ktiot.client.model.property.value.FractionModel
+import org.hnau.ktiot.client.projector.property.value.EditableProjector
+import org.hnau.ktiot.client.projector.property.value.FlagProjector
+import org.hnau.ktiot.client.projector.property.value.FractionProjector
+import org.hnau.ktiot.client.projector.property.value.ValueProjector
 
 @Immutable
 class PropertyProjector(

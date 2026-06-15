@@ -1,6 +1,5 @@
 package org.hnau.ktiot.client.model.property.value
 
-import org.hnau.ktiot.scheme.PropertyType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +17,7 @@ import org.hnau.commons.kotlin.coroutines.flow.state.mapState
 import org.hnau.commons.kotlin.coroutines.flow.state.mutable.toMutableStateFlowAsInitial
 import org.hnau.commons.kotlin.coroutines.fold
 import org.hnau.commons.kotlin.foldNullable
+import org.hnau.ktiot.scheme.PropertyType
 import kotlin.time.Duration.Companion.milliseconds
 
 class FractionModel(

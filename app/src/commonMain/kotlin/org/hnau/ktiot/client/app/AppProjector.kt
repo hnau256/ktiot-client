@@ -1,10 +1,6 @@
 package org.hnau.ktiot.client.app
 
 import androidx.compose.runtime.CompositionLocalProvider
-import org.hnau.ktiot.client.model.init.InitModel
-import org.hnau.ktiot.client.projector.init.InitProjector
-import org.hnau.ktiot.client.projector.init.impl
-import org.hnau.ktiot.client.projector.utils.Localization
 import kotlinx.coroutines.CoroutineScope
 import org.hnau.commons.app.model.app.AppModel
 import org.hnau.commons.app.model.theme.ThemeBrightness
@@ -13,6 +9,10 @@ import org.hnau.commons.app.model.theme.palette.SystemPalettes
 import org.hnau.commons.app.projector.app.AppProjector
 import org.hnau.commons.app.projector.fractal.context.FContext
 import org.hnau.commons.app.projector.fractal.context.LocalFContext
+import org.hnau.ktiot.client.model.init.InitModel
+import org.hnau.ktiot.client.projector.init.InitProjector
+import org.hnau.ktiot.client.projector.init.impl
+import org.hnau.ktiot.client.projector.utils.Localization
 
 fun createAppProjector(
     scope: CoroutineScope,

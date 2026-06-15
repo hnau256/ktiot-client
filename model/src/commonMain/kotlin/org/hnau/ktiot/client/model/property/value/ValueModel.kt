@@ -1,12 +1,12 @@
 package org.hnau.ktiot.client.model.property.value
 
-import org.hnau.ktiot.scheme.PropertyType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 import org.hnau.commons.app.model.goback.GoBackHandler
 import org.hnau.commons.kotlin.coroutines.ActionOrElse
 import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
+import org.hnau.ktiot.scheme.PropertyType
 
 sealed interface ValueModel {
 
