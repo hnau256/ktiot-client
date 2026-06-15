@@ -1,5 +1,5 @@
 [versions]
-ktiot = "1.9.0"
+ktiot = "1.10.0"
 
 [libraries]
 ktiot-mqtt = { module = "org.hnau.ktiot-commons:ktiot-commons-mqtt", version.ref = "ktiot" }

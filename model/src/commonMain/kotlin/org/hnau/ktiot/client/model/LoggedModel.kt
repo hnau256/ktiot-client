@@ -79,7 +79,7 @@ class LoggedModel(
         config = MqttConfig(
             broker = BrokerConfig(
                 connection = BrokerConfig.Connection(
-                    host = skeleton.loginInfo.address,
+                    host = skeleton.loginInfo.host,
                     port = skeleton.loginInfo.port,
                     clientId = skeleton.loginInfo.clientId,
                     auth = skeleton.loginInfo.auth?.let { auth ->

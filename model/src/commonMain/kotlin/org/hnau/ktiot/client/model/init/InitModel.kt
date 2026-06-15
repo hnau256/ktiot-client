@@ -22,6 +22,7 @@ import org.hnau.commons.kotlin.coroutines.flow.state.mapWithScope
 import org.hnau.commons.kotlin.coroutines.flow.state.mutable.toMutableStateFlowAsInitial
 import org.hnau.commons.kotlin.coroutines.flow.state.scopedInState
 import org.hnau.commons.kotlin.fold
+import org.hnau.commons.kotlin.foldNullable
 import org.hnau.commons.kotlin.getOrInit
 import org.hnau.commons.kotlin.mapper.toMapper
 import org.hnau.commons.kotlin.shrinkType
@@ -108,9 +109,12 @@ class InitModel(
                                 .shrinkType<_, InitStateModel.Skeleton.Login>()
                                 .getOrInit {
                                     InitStateModel.Skeleton.Login(
-                                        LoginModel.Skeleton(
-                                            cachedLoginInfo = loginState.cachedLoginInfo,
-                                        )
+                                        loginState
+                                            .cachedLoginInfo
+                                            .foldNullable(
+                                                ifNull = LoginModel.Skeleton::createForNew,
+                                                ifNotNull = LoginModel.Skeleton::createForEdit
+                                            )
                                     )
                                 }
                                 .skeleton
