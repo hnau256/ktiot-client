@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Public
@@ -144,45 +145,52 @@ class LoginProjector(
                 .collectAsState()
                 .value
 
-            SContentWithActions(
-                content = {
-                    SLazyTable(
-                        orientation = Orientation.Vertical,
-                    ) {
-                        cell(
-                            key = "host_with_port"
+            Box(
+                contentAlignment = Alignment.Center,
+            ) {
+                SContentWithActions(
+                    modifier = Modifier.widthIn(
+                        max = 480.dp,
+                    ),
+                    content = {
+                        SLazyTable(
+                            orientation = Orientation.Vertical,
                         ) {
-                            Subtable {
-                                SCell(
-                                    modifier = Modifier.weight(3f),
-                                ) {
-                                    host.Content()
-                                }
-                                SCell(
-                                    modifier = Modifier.weight(2f),
-                                ) {
-                                    port.Content()
+                            cell(
+                                key = "host_with_port"
+                            ) {
+                                Subtable {
+                                    SCell(
+                                        modifier = Modifier.weight(3f),
+                                    ) {
+                                        host.Content()
+                                    }
+                                    SCell(
+                                        modifier = Modifier.weight(2f),
+                                    ) {
+                                        port.Content()
+                                    }
                                 }
                             }
+                            cell(key = "protocol") { protocol.Content() }
+                            cell(key = "client_id") { clientId.Content() }
+                            cell(key = "use_credentials") { useCredentials.Content() }
+                            authOrNull?.let { auth ->
+                                with(auth) { Content() }
+                            }
                         }
-                        cell(key = "protocol") { protocol.Content() }
-                        cell(key = "client_id") { clientId.Content() }
-                        cell(key = "use_credentials") { useCredentials.Content() }
-                        authOrNull?.let { auth ->
-                            with(auth) { Content() }
-                        }
-                    }
-                },
-                actions = {
-                    SButton(
-                        actionOrElseOrDisabled = model.login.collectAsState().value,
-                        titleOrIcon = TitleOrIcon.Both(
-                            title = dependencies.localization.login,
-                            icon = Drawable.Vector(Icons.Default.RocketLaunch),
+                    },
+                    actions = {
+                        SButton(
+                            actionOrElseOrDisabled = model.login.collectAsState().value,
+                            titleOrIcon = TitleOrIcon.Both(
+                                title = dependencies.localization.login,
+                                icon = Drawable.Vector(Icons.Default.RocketLaunch),
+                            )
                         )
-                    )
-                }
-            )
+                    }
+                )
+            }
         }
     }
 }
