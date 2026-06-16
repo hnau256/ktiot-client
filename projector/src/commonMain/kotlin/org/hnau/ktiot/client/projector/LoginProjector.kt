@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidthIn
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Public
@@ -136,8 +137,7 @@ class LoginProjector(
     ) {
         SScreen(
             contentPadding = contentPadding,
-            modifier = Modifier.imePadding(),
-            title = {},
+            title = { SText(dependencies.localization.credentials) },
         ) {
 
             val authOrNull = auth
