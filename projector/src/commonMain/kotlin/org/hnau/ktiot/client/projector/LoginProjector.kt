@@ -23,12 +23,17 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import org.hnau.commons.app.projector.fractal.SButton
+import org.hnau.commons.app.projector.fractal.SContentWithActions
+import org.hnau.commons.app.projector.fractal.SScreen
 import org.hnau.commons.app.projector.fractal.SText
 import org.hnau.commons.app.projector.fractal.input.InputProjector
 import org.hnau.commons.app.projector.fractal.input.createInputProjector
 import org.hnau.commons.app.projector.fractal.input.type.toInputProjectorPrototype
 import org.hnau.commons.app.projector.fractal.table.STable
 import org.hnau.commons.app.projector.fractal.table.Subtable
+import org.hnau.commons.app.projector.fractal.table.lazy.SLazyTable
+import org.hnau.commons.app.projector.fractal.table.lazy.Subtable
+import org.hnau.commons.app.projector.fractal.table.lazy.cell
 import org.hnau.commons.app.projector.uikit.line.weight
 import org.hnau.commons.app.projector.utils.Drawable
 import org.hnau.commons.app.projector.utils.Orientation
@@ -62,6 +67,7 @@ class LoginProjector(
             imeAction = ImeAction.Next,
             keyboardType = KeyboardType.Uri,
             requestFocusOnStart = true,
+            showClearButton = false,
         )
         .createInputProjector(
             scope = scope,
@@ -74,6 +80,7 @@ class LoginProjector(
         .toInputProjectorPrototype(
             imeAction = ImeAction.Next,
             keyboardType = KeyboardType.Number,
+            showClearButton = false,
         )
         .createInputProjector(
             scope = scope,
@@ -83,7 +90,7 @@ class LoginProjector(
 
     private val protocol: InputProjector = model
         .protocol
-        .toInputProjectorPrototype {protocol -> SText(protocol.name) }
+        .toInputProjectorPrototype { protocol -> SText(protocol.name) }
         .createInputProjector(
             scope = scope,
             title = dependencies.localization.protocol,
@@ -127,43 +134,46 @@ class LoginProjector(
     fun Content(
         contentPadding: PaddingValues,
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .horizontalDisplayPadding()
-                .verticalDisplayPadding()
-                .imePadding()
-                .padding(contentPadding),
-            contentAlignment = Alignment.Center,
+        SScreen(
+            contentPadding = contentPadding,
+            modifier = Modifier.imePadding(),
+            title = {},
         ) {
-            STable(
-                orientation = Orientation.Vertical,
-                modifier = Modifier.requiredWidthIn(
-                    max = 480.dp,
-                ),
-            ) {
-                Subtable {
-                    SCell(
-                        modifier = Modifier.weight(3f),
+
+            val authOrNull = auth
+                .collectAsState()
+                .value
+
+            SContentWithActions(
+                content = {
+                    SLazyTable(
+                        orientation = Orientation.Vertical,
                     ) {
-                        host.Content()
+                        cell(
+                            key = "host_with_port"
+                        ) {
+                            Subtable {
+                                SCell(
+                                    modifier = Modifier.weight(3f),
+                                ) {
+                                    host.Content()
+                                }
+                                SCell(
+                                    modifier = Modifier.weight(2f),
+                                ) {
+                                    port.Content()
+                                }
+                            }
+                        }
+                        cell(key = "protocol") { protocol.Content() }
+                        cell(key = "client_id") { clientId.Content() }
+                        cell(key = "use_credentials") { useCredentials.Content() }
+                        authOrNull?.let { auth ->
+                            with(auth) { Content() }
+                        }
                     }
-                    SCell(
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        port.Content()
-                    }
-                }
-                SCell { protocol.Content() }
-                SCell { clientId.Content() }
-                SCell { useCredentials.Content() }
-                auth
-                    .collectAsState()
-                    .value
-                    ?.let { auth ->
-                        with(auth) { Content() }
-                    }
-                SCell {
+                },
+                actions = {
                     SButton(
                         actionOrElseOrDisabled = model.login.collectAsState().value,
                         titleOrIcon = TitleOrIcon.Both(
@@ -172,7 +182,7 @@ class LoginProjector(
                         )
                     )
                 }
-            }
+            )
         }
     }
 }

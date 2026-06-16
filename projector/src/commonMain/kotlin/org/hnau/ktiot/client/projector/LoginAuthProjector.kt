@@ -10,6 +10,8 @@ import kotlinx.coroutines.CoroutineScope
 import org.hnau.commons.app.projector.fractal.input.InputProjector
 import org.hnau.commons.app.projector.fractal.input.type.toInputProjectorPrototype
 import org.hnau.commons.app.projector.fractal.table.STableScope
+import org.hnau.commons.app.projector.fractal.table.lazy.SLazyTableScope
+import org.hnau.commons.app.projector.fractal.table.lazy.cell
 import org.hnau.commons.app.projector.utils.Drawable
 import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.ktiot.client.model.LoginAuthModel
@@ -51,9 +53,8 @@ class LoginAuthProjector(
             icon = Drawable.Vector(Icons.Default.Password),
         ) { _, _ -> dependencies.localization.passwordIsEmptyError }
 
-    @Composable
-    fun STableScope.Content() {
-        SCell { user.Content() }
-        SCell { password.Content() }
+    fun SLazyTableScope.Content() {
+        cell(key = "user") { user.Content() }
+        cell(key = "password") { password.Content() }
     }
 }
