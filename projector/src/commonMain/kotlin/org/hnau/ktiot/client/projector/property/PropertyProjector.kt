@@ -1,25 +1,29 @@
 package org.hnau.ktiot.client.projector.property
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
-import org.hnau.commons.app.projector.uikit.utils.Dimens
-import org.hnau.commons.app.projector.utils.Icon
+import org.hnau.commons.app.projector.fractal.SIcon
+import org.hnau.commons.app.projector.fractal.SPanel
+import org.hnau.commons.app.projector.fractal.SText
+import org.hnau.commons.app.projector.fractal.context.FContext
+import org.hnau.commons.app.projector.fractal.distance.LocalDistance
+import org.hnau.commons.app.projector.fractal.size.units
+import org.hnau.commons.app.projector.fractal.table.STable
+import org.hnau.commons.app.projector.fractal.utils.Mood
+import org.hnau.commons.app.projector.utils.Drawable
+import org.hnau.commons.app.projector.utils.Orientation
 import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.Loadable
 import org.hnau.commons.kotlin.coroutines.flow.state.mapState
@@ -90,27 +94,30 @@ class PropertyProjector(
     private fun Content(
         modifier: Modifier,
         top: @Composable () -> Unit,
-        main: @Composable () -> Unit = {},
+        main: (@Composable () -> Unit)? = null,
     ) {
-        Card(
+        STable(
+            orientation = Orientation.Vertical,
             modifier = modifier,
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(
-                            horizontal = Dimens.separation,
-                            vertical = Dimens.smallSeparation,
-                        ),
-                    text = model.title,
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                top()
+            SCell {
+                SPanel {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(LocalDistance.current.units.padding.along.small)
+                    ) {
+                        SText(model.title)
+                        top()
+                    }
+                }
             }
-            main()
+            main?.let { mainContent ->
+                SCell {
+                    SPanel {
+                        mainContent()
+                    }
+                }
+            }
         }
     }
 
@@ -125,9 +132,9 @@ class PropertyProjector(
                     modifier = modifier,
                     top = {
                         CircularProgressIndicator(
-                            modifier = Modifier
-                                .padding(Dimens.smallSeparation)
-                                .size(32.dp)
+                            modifier = Modifier.size(
+                                LocalDistance.current.units.iconSize,
+                            )
                         )
                     }
                 )
@@ -135,17 +142,22 @@ class PropertyProjector(
             ifReady = { valueProjectorOrError ->
                 valueProjectorOrError.fold(
                     onFailure = {
-                        Content(
-                            modifier = modifier,
-                            top = {
-                                Icon(
-                                    modifier = Modifier
-                                        .padding(Dimens.smallSeparation)
-                                        .size(32.dp),
-                                    icon = Icons.Filled.Error,
+                        FContext(
+                            update = {
+                                copy(
+                                    mood = Mood.Error,
                                 )
                             }
-                        )
+                        ) {
+                            Content(
+                                modifier = modifier,
+                                top = {
+                                    SIcon(
+                                        drawable = Drawable.Vector(Icons.Filled.Error),
+                                    )
+                                }
+                            )
+                        }
                     },
                     onSuccess = { valueProjector ->
                         Content(
