@@ -9,6 +9,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
+import org.hnau.commons.app.projector.fractal.SPanel
+import org.hnau.commons.app.projector.fractal.table.STableScope
 import org.hnau.commons.app.projector.uikit.utils.Dimens
 import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.coroutines.fold
@@ -31,53 +33,57 @@ class FlagProjector(
     }
 
     @Composable
-    override fun Main() {
-    }
+    override fun STableScope.Top() {
+        SCell {
 
-    @Composable
-    override fun Top() {
+            SPanel {
 
-        val value = model
-            .value
-            .collectAsState()
-            .value
+                val value = model
+                    .value
+                    .collectAsState()
+                    .value
 
-        model
-            .mutable
-            .foldBoolean(
-                ifFalse = {
-                    Text(
-                        modifier = Modifier.padding(
-                            horizontal = Dimens.separation,
-                            vertical = Dimens.smallSeparation,
-                        ),
-                        text = value.foldBoolean(
-                            ifTrue = { dependencies.localization.yes },
-                            ifFalse = { dependencies.localization.no }
-                        ),
-                        color = value.foldBoolean(
-                            ifTrue = { MaterialTheme.colorScheme.primary },
-                            ifFalse = { MaterialTheme.colorScheme.error }
-                        ),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                },
-                ifTrue = {
-                    Switch(
-                        modifier = Modifier.padding(
-                            horizontal = Dimens.separation,
-                            vertical = Dimens.smallSeparation,
-                        ),
-                        checked = value,
-                        onCheckedChange = { value ->
-                            model.publish.value.fold(
-                                ifAction = { publish -> publish.invoke(value) },
-                                ifElse = {}
+                model
+                    .mutable
+                    .foldBoolean(
+                        ifFalse = {
+                            Text(
+                                modifier = Modifier.padding(
+                                    horizontal = Dimens.separation,
+                                    vertical = Dimens.smallSeparation,
+                                ),
+                                text = value.foldBoolean(
+                                    ifTrue = { dependencies.localization.yes },
+                                    ifFalse = { dependencies.localization.no }
+                                ),
+                                color = value.foldBoolean(
+                                    ifTrue = { MaterialTheme.colorScheme.primary },
+                                    ifFalse = { MaterialTheme.colorScheme.error }
+                                ),
+                                style = MaterialTheme.typography.titleLarge,
                             )
                         },
-                        enabled = model.publish.collectAsState().value != null,
+                        ifTrue = {
+                            Switch(
+                                modifier = Modifier.padding(
+                                    horizontal = Dimens.separation,
+                                    vertical = Dimens.smallSeparation,
+                                ),
+                                checked = value,
+                                onCheckedChange = { value ->
+                                    model.publish.value.fold(
+                                        ifAction = { publish -> publish.invoke(value) },
+                                        ifElse = {}
+                                    )
+                                },
+                                enabled = model.publish.collectAsState().value.fold(
+                                    ifAction = { true },
+                                    ifElse = { false },
+                                ),
+                            )
+                        }
                     )
-                }
-            )
+            }
+        }
     }
 }

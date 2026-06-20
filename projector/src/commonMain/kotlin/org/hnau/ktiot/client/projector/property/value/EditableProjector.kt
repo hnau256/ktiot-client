@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import org.hnau.commons.app.projector.fractal.SButton
+import org.hnau.commons.app.projector.fractal.table.STableScope
 import org.hnau.commons.app.projector.utils.Drawable
 import org.hnau.commons.app.projector.utils.Icon
 import org.hnau.commons.app.projector.utils.TitleOrIcon
@@ -118,7 +119,7 @@ class EditableProjector<
         }
 
     @Composable
-    override fun Top() {
+    override fun STableScope.Top() {
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -136,7 +137,7 @@ class EditableProjector<
     }
 
     @Composable
-    override fun Main() {
+    override fun STableScope.Main() {
         val state by state.collectAsState()
         with(state.projector) { Content() }
     }

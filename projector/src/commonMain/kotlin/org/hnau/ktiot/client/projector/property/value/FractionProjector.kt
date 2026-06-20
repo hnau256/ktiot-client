@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceIn
 import kotlinx.coroutines.CoroutineScope
+import org.hnau.commons.app.projector.fractal.SPanel
+import org.hnau.commons.app.projector.fractal.table.STableScope
 import org.hnau.commons.app.projector.uikit.utils.Dimens
 import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.foldBoolean
@@ -30,60 +32,59 @@ class FractionProjector(
     interface Dependencies
 
     @Composable
-    override fun Top() {
-    }
+    override fun STableScope.Main() {
+        SCell {
+            SPanel {
+                val range = model.type.range
 
-    @Composable
-    override fun Main() {
+                val value = model
+                    .value
+                    .collectAsState()
+                    .value
 
-        val range = model.type.range
-
-        val value = model
-            .value
-            .collectAsState()
-            .value
-
-        model
-            .mutable
-            .foldBoolean(
-                ifTrue = {
-                    Slider(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                horizontal = Dimens.separation,
-                                vertical = Dimens.smallSeparation,
-                            ),
-                        value = value,
-                        valueRange = model.type.range,
-                        onValueChange = model::update,
-                        onValueChangeFinished = model::publish,
-                        enabled = model
-                            .isPublishing
-                            .collectAsState()
-                            .value
-                            .not(),
-                    )
-                },
-                ifFalse = {
-                    val normalizedValue = remember(value, range) {
-                        range
-                            .takeIf { !it.isEmpty() }
-                            ?.let { nonEmptyRange ->
-                                (value - nonEmptyRange.start) /
-                                        (nonEmptyRange.endInclusive - nonEmptyRange.start)
+                model
+                    .mutable
+                    .foldBoolean(
+                        ifTrue = {
+                            Slider(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        horizontal = Dimens.separation,
+                                        vertical = Dimens.smallSeparation,
+                                    ),
+                                value = value,
+                                valueRange = model.type.range,
+                                onValueChange = model::update,
+                                onValueChangeFinished = model::publish,
+                                enabled = model
+                                    .isPublishing
+                                    .collectAsState()
+                                    .value
+                                    .not(),
+                            )
+                        },
+                        ifFalse = {
+                            val normalizedValue = remember(value, range) {
+                                range
+                                    .takeIf { !it.isEmpty() }
+                                    ?.let { nonEmptyRange ->
+                                        (value - nonEmptyRange.start) /
+                                                (nonEmptyRange.endInclusive - nonEmptyRange.start)
+                                    }
+                                    ?.fastCoerceIn(0f, 1f)
+                                    ?: 0f
                             }
-                            ?.fastCoerceIn(0f, 1f)
-                            ?: 0f
-                    }
-                    LinearProgressIndicator(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(Dimens.separation)
-                            .height(12.dp),
-                        progress = { normalizedValue },
+                            LinearProgressIndicator(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(Dimens.separation)
+                                    .height(12.dp),
+                                progress = { normalizedValue },
+                            )
+                        }
                     )
-                }
-            )
+            }
+        }
     }
 }

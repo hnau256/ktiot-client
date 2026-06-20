@@ -1,7 +1,7 @@
 package org.hnau.ktiot.client.projector.property
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
@@ -10,8 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import org.hnau.commons.app.projector.fractal.SIcon
@@ -21,14 +21,19 @@ import org.hnau.commons.app.projector.fractal.context.FContext
 import org.hnau.commons.app.projector.fractal.distance.LocalDistance
 import org.hnau.commons.app.projector.fractal.size.units
 import org.hnau.commons.app.projector.fractal.table.STable
+import org.hnau.commons.app.projector.fractal.table.STableScope
+import org.hnau.commons.app.projector.fractal.table.Subtable
 import org.hnau.commons.app.projector.fractal.utils.Mood
 import org.hnau.commons.app.projector.utils.Drawable
 import org.hnau.commons.app.projector.utils.Orientation
 import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.Loadable
+import org.hnau.commons.kotlin.coroutines.ActionOrElse
+import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
 import org.hnau.commons.kotlin.coroutines.flow.state.mapState
 import org.hnau.commons.kotlin.coroutines.flow.state.scopedInState
 import org.hnau.commons.kotlin.fold
+import org.hnau.commons.kotlin.foldBoolean
 import org.hnau.commons.kotlin.map
 import org.hnau.ktiot.client.model.property.PropertyModel
 import org.hnau.ktiot.client.model.property.value.EditableModel
@@ -93,29 +98,30 @@ class PropertyProjector(
     @Composable
     private fun Content(
         modifier: Modifier,
-        top: @Composable () -> Unit,
-        main: (@Composable () -> Unit)? = null,
+        top: @Composable STableScope.() -> Unit = {},
+        main: @Composable STableScope.() -> Unit = {},
+        titleIsLoading: Boolean = false,
     ) {
         STable(
             orientation = Orientation.Vertical,
             modifier = modifier,
         ) {
-            SCell {
-                SPanel {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(LocalDistance.current.units.padding.along.small)
+            Subtable {
+                SCell {
+                    SPanel(
+                        actionOrElseOrDisabled = titleIsLoading.foldBoolean(
+                            ifFalse = { null },
+                            ifTrue = { ActionOrElse.Else(CancelOrInProgress.InProgress) }
+                        )
                     ) {
                         SText(model.title)
-                        top()
                     }
                 }
+                top(this)
             }
-            main?.let { mainContent ->
-                SCell {
-                    SPanel {
-                        mainContent()
-                    }
+            SCell {
+                SPanel {
+                    main()
                 }
             }
         }
@@ -130,13 +136,7 @@ class PropertyProjector(
             ifLoading = {
                 Content(
                     modifier = modifier,
-                    top = {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(
-                                LocalDistance.current.units.iconSize,
-                            )
-                        )
-                    }
+                    titleIsLoading = true,
                 )
             },
             ifReady = { valueProjectorOrError ->

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import kotlinx.coroutines.CoroutineScope
+import org.hnau.commons.app.projector.fractal.table.STableScope
 import org.hnau.commons.app.projector.uikit.TextInput
 import org.hnau.commons.app.projector.uikit.utils.Dimens
 import org.hnau.commons.gen.pipe.annotations.Pipe
@@ -31,7 +32,7 @@ class NumberViewProjector(
     interface Dependencies
 
     @Composable
-    override fun Content() {
+    override fun STableScope.Content() {
         Text(
             modifier = Modifier
                 .padding(Dimens.separation),
@@ -56,7 +57,7 @@ class NumberEditProjector(
     interface Dependencies
 
     @Composable
-    override fun Content() {
+    override fun STableScope.Content() {
         val focusRequester = remember { FocusRequester() }
         TextInput(
             modifier = Modifier
