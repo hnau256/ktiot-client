@@ -13,6 +13,8 @@ import org.hnau.commons.app.projector.uikit.state.LoadableContent
 import org.hnau.commons.app.projector.uikit.state.StateContent
 import org.hnau.commons.app.projector.uikit.transition.TransitionSpec
 import org.hnau.commons.gen.pipe.annotations.Pipe
+import org.hnau.commons.gen.sealup.annotations.SealUp
+import org.hnau.commons.gen.sealup.annotations.Variant
 import org.hnau.commons.kotlin.Loadable
 import org.hnau.commons.kotlin.coroutines.flow.state.mapWithScope
 import org.hnau.commons.kotlin.map
@@ -36,6 +38,30 @@ class InitProjector(
         fun login(): LoginProjector.Dependencies
 
         fun logged(): LoggedProjector.Dependencies
+
+        companion object
+    }
+
+    @SealUp(
+        variants = [
+            Variant(
+                type = LoginProjector::class,
+                identifier = "login",
+            ),
+            Variant(
+                type = LoggedProjector::class,
+                identifier = "logged",
+            ),
+        ],
+        wrappedValuePropertyName = "projector",
+        sealedInterfaceName = "InitStateProjector",
+    )
+    interface State {
+
+        @Composable
+        fun Content(
+            contentPadding: PaddingValues,
+        )
 
         companion object
     }
@@ -83,7 +109,7 @@ class InitProjector(
                         .StateContent(
                             modifier = Modifier.fillMaxSize(),
                             label = "LoginOrLogged",
-                            contentKey = InitStateProjector::key,
+                            contentKey = InitStateProjector::ordinal,
                             transitionSpec = TransitionSpec.crossfade(),
                         ) { stateProjectorLocal ->
                             stateProjectorLocal.Content(

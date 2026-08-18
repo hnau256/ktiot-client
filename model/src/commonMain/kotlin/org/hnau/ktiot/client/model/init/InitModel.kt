@@ -9,6 +9,8 @@ import org.hnau.commons.app.model.preferences.Preferences
 import org.hnau.commons.app.model.preferences.map
 import org.hnau.commons.app.model.preferences.withDefault
 import org.hnau.commons.gen.pipe.annotations.Pipe
+import org.hnau.commons.gen.sealup.annotations.SealUp
+import org.hnau.commons.gen.sealup.annotations.Variant
 import org.hnau.commons.kotlin.Loadable
 import org.hnau.commons.kotlin.LoadableStateFlow
 import org.hnau.commons.kotlin.Loading
@@ -51,9 +53,50 @@ class InitModel(
         companion object
     }
 
+    @SealUp(
+        variants = [
+            Variant(
+                type = LoginModel::class,
+                identifier = "login",
+            ),
+            Variant(
+                type = LoggedModel::class,
+                identifier = "logged",
+            ),
+        ],
+        wrappedValuePropertyName = "model",
+        sealedInterfaceName = "InitStateModel",
+    )
+    interface State {
+
+        val goBackHandler: GoBackHandler
+
+        companion object
+    }
+
+    @SealUp(
+        variants = [
+            Variant(
+                type = LoginModel.Skeleton::class,
+                identifier = "login",
+            ),
+            Variant(
+                type = LoggedModel.Skeleton::class,
+                identifier = "logged",
+            ),
+        ],
+        wrappedValuePropertyName = "skeleton",
+        sealedInterfaceName = "InitStateModelSkeleton",
+        serializable = true,
+    )
+    interface StateSkeleton {
+
+        companion object
+    }
+
     @Serializable
     data class Skeleton(
-        var state: InitStateModel.Skeleton? = null,
+        var state: InitStateModelSkeleton? = null,
     )
 
     val state: StateFlow<Loadable<InitStateModel>> = LoadableStateFlow(
@@ -107,9 +150,9 @@ class InitModel(
                                 ),
                                 skeleton = skeleton::state
                                     .toAccessor()
-                                    .shrinkType<_, InitStateModel.Skeleton.Login>()
+                                    .shrinkType<_, InitStateModelSkeleton.Login>()
                                     .getOrInit {
-                                        InitStateModel.Skeleton.Login(
+                                        InitStateModelSkeleton.Login(
                                             cachedLoginInfo
                                                 .foldNullable(
                                                     ifNull = LoginModel.Skeleton::createForNew,
@@ -137,9 +180,9 @@ class InitModel(
                                 ),
                                 skeleton = skeleton::state
                                     .toAccessor()
-                                    .shrinkType<_, InitStateModel.Skeleton.Logged>()
+                                    .shrinkType<_, InitStateModelSkeleton.Logged>()
                                     .getOrInit {
-                                        InitStateModel.Skeleton.Logged(
+                                        InitStateModelSkeleton.Logged(
                                             LoggedModel.Skeleton(
                                                 loginInfo = loginInfo,
                                             )
