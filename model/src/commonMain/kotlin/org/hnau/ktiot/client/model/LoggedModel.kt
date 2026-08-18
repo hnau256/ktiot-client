@@ -71,9 +71,10 @@ class LoggedModel(
         var connected: ConnectedModel.Skeleton? = null,
     )
 
-    private val logout: StateFlow<ActionOrElse<Unit, CancelOrInProgress.InProgress>> = actionOrInProgressIfExecuting(scope) {
-        dependencies.doLogout.doLogout()
-    }
+    private val logout: StateFlow<ActionOrElse<Unit, CancelOrInProgress.InProgress>> =
+        actionOrInProgressIfExecuting(scope) {
+            dependencies.doLogout.doLogout()
+        }
 
     val state: StateFlow<State> = mqtt(
         scope = scope,
@@ -121,18 +122,24 @@ class LoggedModel(
         }
 
     val goBackHandler: GoBackHandler = derivedStateFlowOf(scope) {
-        when (val s = state.state) {
-            is State.Connected -> s.model.goBackHandler.state
+        state.state.foldRaw(
+            ifConnected = { connected ->
+                connected.model.goBackHandler.state
+            },
 
-            is State.Connecting -> s.logout.state.fold(
-                ifAction = { action -> { action() } },
-                ifElse = { {} },
-            )
+            ifConnecting = { connecting ->
+                connecting.logout.state.fold(
+                    ifAction = { action -> { action() } },
+                    ifElse = { {} },
+                )
+            },
 
-            is State.WaitingForReconnection -> s.logout.state.fold(
-                ifAction = { action -> { action() } },
-                ifElse = { {} },
-            )
-        }
+            ifWaitingForReconnection = { waitingForReconnection ->
+                waitingForReconnection.logout.state.fold(
+                    ifAction = { action -> { action() } },
+                    ifElse = { {} },
+                )
+            },
+        )
     }
 }

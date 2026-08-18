@@ -126,15 +126,19 @@ class EditableProjector<
             verticalAlignment = Alignment.CenterVertically,
         ) {
             val state by state.collectAsState()
-            when (val state = state) {
-                is State.Edit -> EditTop(
-                    state = state,
-                )
+            state.foldRaw(
+                ifEdit = { edit ->
+                    EditTop(
+                        state = edit,
+                    )
+                },
 
-                is State.View -> ViewTop(
-                    state = state,
-                )
-            }
+                ifView = { view ->
+                    ViewTop(
+                        state = view,
+                    )
+                },
+            )
         }
     }
 

@@ -31,6 +31,7 @@ import org.hnau.commons.kotlin.coroutines.ActionOrElse
 import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
 import org.hnau.commons.kotlin.coroutines.flow.state.mapWithScope
 import org.hnau.ktiot.client.model.LoggedModel
+import org.hnau.ktiot.client.model.foldRaw
 import org.hnau.ktiot.client.projector.utils.Localization
 import org.hnau.ktiot.client.projector.utils.format
 import kotlin.time.Clock
@@ -80,25 +81,25 @@ class LoggedProjector(
     private val state: StateFlow<State> = model
         .state
         .mapWithScope(scope) { sateScope, state ->
-            when (state) {
-                is LoggedModel.State.Connected -> State.Connected(
+            state.foldRaw(
+                ifConnected = { connected -> State.Connected(
                     projector = ConnectedProjector(
                         scope = sateScope,
-                        model = state.model,
+                        model = connected.model,
                         dependencies = dependencies.connected(),
                     )
-                )
+                ) },
 
-                is LoggedModel.State.Connecting -> State.Connecting(
-                    logout = state.logout,
-                )
+                ifConnecting = { connecting -> State.Connecting(
+                    logout = connecting.logout,
+                ) },
 
-                is LoggedModel.State.WaitingForReconnection -> State.WaitingForReconnection(
-                    errorMessage = state.cause.message,
-                    logout = state.logout,
-                    reconnectNow = state.reconnectNow,
+                ifWaitingForReconnection = { waitingForReconnection -> State.WaitingForReconnection(
+                    errorMessage = waitingForReconnection.cause.message,
+                    logout = waitingForReconnection.logout,
+                    reconnectNow = waitingForReconnection.reconnectNow,
                     beforeReconnection = run {
-                        val calc = { state.reconnectionAt - Clock.System.now() }
+                        val calc = { waitingForReconnection.reconnectionAt - Clock.System.now() }
                         ticker(
                             delayMillis = 1.seconds.inWholeMilliseconds,
                         )
@@ -110,8 +111,8 @@ class LoggedProjector(
                                 initialValue = calc()
                             )
                     }
-                )
-            }
+                ) },
+            )
         }
 
     @Composable
@@ -126,28 +127,28 @@ class LoggedProjector(
                 label = "MqttState",
                 transitionSpec = TransitionSpec.crossfade(),
                 contentKey = { state ->
-                    when (state) {
-                        is State.Connecting -> 0
-                        is State.WaitingForReconnection -> 1
-                        is State.Connected -> 2
-                    }
+                    state.foldRaw(
+                        ifConnecting = { _ -> 0 },
+                        ifWaitingForReconnection = { _ -> 1 },
+                        ifConnected = { _ -> 2 },
+                    )
                 },
             ) { state ->
-                when (state) {
-                    is State.Connected -> state.projector.Content(
+                state.foldRaw(
+                    ifConnected = { connected -> connected.projector.Content(
                         contentPadding = contentPadding,
-                    )
+                    ) },
 
-                    is State.Connecting -> Connecting(
-                        state = state,
+                    ifConnecting = { connecting -> Connecting(
+                        state = connecting,
                         contentPadding = contentPadding,
-                    )
+                    ) },
 
-                    is State.WaitingForReconnection -> WaitingForReconnection(
-                        state = state,
+                    ifWaitingForReconnection = { waitingForReconnection -> WaitingForReconnection(
+                        state = waitingForReconnection,
                         contentPadding = contentPadding,
-                    )
-                }
+                    ) },
+                )
             }
     }
 

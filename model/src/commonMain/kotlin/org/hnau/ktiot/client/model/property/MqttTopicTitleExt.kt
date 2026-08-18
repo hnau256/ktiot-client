@@ -1,13 +1,14 @@
 package org.hnau.ktiot.client.model.property
 
 import org.hnau.ktiot.client.model.utils.ChildTopic
+import org.hnau.ktiot.client.model.utils.fold
 import org.hnau.ktiot.mqtt.types.topic.Topic
 import org.hnau.ktiot.mqtt.types.topic.TopicParts
 
-fun ChildTopic.toTitle(): String = when (this) {
-    is ChildTopic.Absolute -> TopicParts.Companion.Separator + topic.parts.toTitle()
-    is ChildTopic.Relative -> child.parts.toTitle()
-}
+fun ChildTopic.toTitle(): String = fold(
+    ifAbsolute = { topic -> TopicParts.Companion.Separator + topic.parts.toTitle() },
+    ifRelative = { _, child -> child.parts.toTitle() },
+)
 
 @Deprecated("Use ChildTopic.toTitle")
 fun Topic.Relative.toTitle(): String =

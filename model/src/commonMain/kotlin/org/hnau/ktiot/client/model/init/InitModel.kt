@@ -91,69 +91,72 @@ class InitModel(
         return loginStatePreference
             .value
             .mapWithScope(scope) { stateScope, loginState ->
-                when (loginState) {
-                    is LoginState.Logouted -> InitStateModel.Login(
-                        model = LoginModel(
-                            scope = stateScope,
-                            dependencies = dependencies.login(
-                                doLogin = { loginInfo ->
-                                    loginStatePreference.update(
-                                        LoginState.Logged(
-                                            loginInfo = loginInfo,
-                                        )
-                                    )
-                                }
-                            ),
-                            skeleton = skeleton::state
-                                .toAccessor()
-                                .shrinkType<_, InitStateModel.Skeleton.Login>()
-                                .getOrInit {
-                                    InitStateModel.Skeleton.Login(
-                                        loginState
-                                            .cachedLoginInfo
-                                            .foldNullable(
-                                                ifNull = LoginModel.Skeleton::createForNew,
-                                                ifNotNull = LoginModel.Skeleton::createForEdit
+                loginState.fold(
+                    ifLogouted = { cachedLoginInfo ->
+                        InitStateModel.Login(
+                            model = LoginModel(
+                                scope = stateScope,
+                                dependencies = dependencies.login(
+                                    doLogin = { loginInfo ->
+                                        loginStatePreference.update(
+                                            LoginState.Logged(
+                                                loginInfo = loginInfo,
                                             )
-                                    )
-                                }
-                                .skeleton
+                                        )
+                                    }
+                                ),
+                                skeleton = skeleton::state
+                                    .toAccessor()
+                                    .shrinkType<_, InitStateModel.Skeleton.Login>()
+                                    .getOrInit {
+                                        InitStateModel.Skeleton.Login(
+                                            cachedLoginInfo
+                                                .foldNullable(
+                                                    ifNull = LoginModel.Skeleton::createForNew,
+                                                    ifNotNull = LoginModel.Skeleton::createForEdit
+                                                )
+                                        )
+                                    }
+                                    .skeleton
+                            )
                         )
-                    )
+                    },
 
-                    is LoginState.Logged -> InitStateModel.Logged(
-                        model = LoggedModel(
-                            scope = stateScope,
-                            dependencies = dependencies.logged(
-                                doLogout = {
-                                    loginStatePreference.update(
-                                        LoginState.Logouted(
-                                            cachedLoginInfo = loginState.loginInfo,
+                    ifLogged = { loginInfo ->
+                        InitStateModel.Logged(
+                            model = LoggedModel(
+                                scope = stateScope,
+                                dependencies = dependencies.logged(
+                                    doLogout = {
+                                        loginStatePreference.update(
+                                            LoginState.Logouted(
+                                                cachedLoginInfo = loginInfo,
+                                            )
                                         )
-                                    )
-                                }
-                            ),
-                            skeleton = skeleton::state
-                                .toAccessor()
-                                .shrinkType<_, InitStateModel.Skeleton.Logged>()
-                                .getOrInit {
-                                    InitStateModel.Skeleton.Logged(
-                                        LoggedModel.Skeleton(
-                                            loginInfo = loginState.loginInfo,
+                                    }
+                                ),
+                                skeleton = skeleton::state
+                                    .toAccessor()
+                                    .shrinkType<_, InitStateModel.Skeleton.Logged>()
+                                    .getOrInit {
+                                        InitStateModel.Skeleton.Logged(
+                                            LoggedModel.Skeleton(
+                                                loginInfo = loginInfo,
+                                            )
                                         )
-                                    )
-                                }
-                                .skeleton
+                                    }
+                                    .skeleton
+                            )
                         )
-                    )
-                }
+                    },
+                )
             }
     }
 
     val goBackHandler: GoBackHandler = derivedStateFlowOf(scope) {
         state.state.fold(
             ifLoading = { null },
-            ifReady = { it.goBackHandler.state },
+            ifReady = { model -> model.goBackHandler.state },
         )
     }
 }

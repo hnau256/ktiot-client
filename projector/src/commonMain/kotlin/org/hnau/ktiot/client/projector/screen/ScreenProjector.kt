@@ -186,15 +186,13 @@ class ScreenProjector(
                         (targetState.zIndex - initialState.zIndex).sign * 0.5f
                     },
                 ) { stateLocal ->
-                    when (stateLocal) {
-                        is State.Child -> stateLocal
-                            .projector
-                            .Content()
+                    stateLocal.fold(
+                        ifChild = { _, projector -> projector.Content() },
 
-                        is State.Items -> Items(
-                            items = stateLocal.items,
-                        )
-                    }
+                        ifItems = { items -> Items(
+                            items = items,
+                        ) },
+                    )
                 }
             }
     }
@@ -206,10 +204,10 @@ class ScreenProjector(
         )
 
     private val State.zIndex: Int
-        get() = when (this) {
-            is State.Items -> 0
-            is State.Child -> 1
-        }
+        get() = foldRaw(
+            ifItems = { _ -> 0 },
+            ifChild = { _ -> 1 },
+        )
 
     @Composable
     private fun Items(
