@@ -19,10 +19,9 @@ import org.hnau.commons.app.model.goback.GoBackHandler
 import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.coroutines.ActionOrElse
 import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
-import org.hnau.commons.kotlin.coroutines.flow.state.flatMapState
+import org.hnau.commons.kotlin.coroutines.flow.state.derivedStateFlowOf
 import org.hnau.commons.kotlin.coroutines.flow.state.mapState
 import org.hnau.commons.kotlin.coroutines.flow.state.mapWithScope
-import org.hnau.commons.kotlin.coroutines.flow.state.scopedInState
 import org.hnau.commons.kotlin.coroutines.fold
 import org.hnau.commons.kotlin.ifNull
 import org.hnau.commons.kotlin.ifTrue
@@ -198,14 +197,10 @@ class EditableModel<
             )
         }
 
-    override val goBackHandler: GoBackHandler = state
-        .scopedInState(scope)
-        .flatMapState(scope) { (stateScope, state) ->
-            when (state) {
-                is State.View -> state.model.goBackHandler
-                is State.Edit -> state.model.goBackHandler.mapState(stateScope) { backFromEdit ->
-                    backFromEdit ?: ::switchToView
-                }
-            }
+    override val goBackHandler: GoBackHandler = derivedStateFlowOf(scope) {
+        when (val s = state.state) {
+            is State.View -> s.model.goBackHandler.state
+            is State.Edit -> s.model.goBackHandler.state ?: ::switchToView
         }
+    }
 }

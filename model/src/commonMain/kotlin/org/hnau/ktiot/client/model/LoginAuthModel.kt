@@ -14,7 +14,8 @@ import org.hnau.commons.app.model.input.factory.createSkeleton
 import org.hnau.commons.app.model.input.factory.toInputModelFactory
 import org.hnau.commons.app.model.input.parser.ParsingMapper
 import org.hnau.commons.app.model.utils.Editable
-import org.hnau.commons.app.model.utils.combineEditableWith
+import org.hnau.commons.app.model.utils.editable
+import org.hnau.commons.kotlin.coroutines.flow.state.derivedStateFlowOf
 import org.hnau.commons.kotlin.foldNullable
 import org.hnau.commons.kotlin.it
 import org.hnau.ktiot.client.model.init.LoginInfo
@@ -70,14 +71,13 @@ class LoginAuthModel(
             skeleton = skeleton.password,
         )
 
-    val auth: StateFlow<Editable<LoginInfo.Auth>> = user.editable.combineEditableWith(
-        scope = scope,
-        other = password.editable,
-    ) { user, password ->
-        LoginInfo.Auth(
-            user = user,
-            password = password,
-        )
+    val auth: StateFlow<Editable<LoginInfo.Auth>> = derivedStateFlowOf(scope) {
+        editable {
+            LoginInfo.Auth(
+                user = user.editable.state.bind(),
+                password = password.editable.state.bind(),
+            )
+        }
     }
 
     companion object {

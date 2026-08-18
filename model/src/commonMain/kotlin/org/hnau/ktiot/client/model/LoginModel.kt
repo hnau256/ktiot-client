@@ -9,7 +9,6 @@ package org.hnau.ktiot.client.model
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.left
-import arrow.core.plus
 import arrow.core.right
 import arrow.core.toNonEmptyListOrThrow
 import kotlinx.coroutines.CoroutineScope
@@ -31,14 +30,14 @@ import org.hnau.commons.app.model.input.factory.createSkeleton
 import org.hnau.commons.app.model.input.factory.toInputModelFactory
 import org.hnau.commons.app.model.input.parser.ParsingMapper
 import org.hnau.commons.app.model.utils.Editable
-import org.hnau.commons.app.model.utils.combineEditableWith
+import org.hnau.commons.app.model.utils.editable
 import org.hnau.commons.app.model.utils.fold
 import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.KeyValue
 import org.hnau.commons.kotlin.coroutines.ActionOrElse
 import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
 import org.hnau.commons.kotlin.coroutines.actionOrCancelIfExecuting
-import org.hnau.commons.kotlin.coroutines.flow.state.flatMapState
+import org.hnau.commons.kotlin.coroutines.flow.state.derivedStateFlowOf
 import org.hnau.commons.kotlin.coroutines.flow.state.flatMapWithScope
 import org.hnau.commons.kotlin.coroutines.flow.state.mapState
 import org.hnau.commons.kotlin.coroutines.flow.state.mapWithScope
@@ -184,45 +183,17 @@ class LoginModel(
         }
     }
 
-    private val loginInfo: StateFlow<Editable<LoginInfo>> = host
-        .editable
-        .combineEditableWith(
-            scope = scope,
-            other = port.editable,
-            combine = ::Pair,
-        )
-        .combineEditableWith(
-            scope = scope,
-            other = clientId.editable,
-            combine = Pair<ServerHost, Int>::plus,
-        )
-        .combineEditableWith(
-            scope = scope,
-            other = protocol.editable,
-            combine = Triple<ServerHost, Int, String>::plus,
-        )
-        .combineEditableWith(
-            scope = scope,
-            other = auth.flatMapState(scope) { authOrNull ->
-                authOrNull.foldNullable(
-                    ifNull = {
-                        Editable.Value(
-                            value = null,
-                            changed = false,
-                        ).toMutableStateFlowAsInitial()
-                    },
-                    ifNotNull = LoginAuthModel::auth
-                )
-            },
-        ) { (host, port, clientId, protocol), auth ->
+    private val loginInfo: StateFlow<Editable<LoginInfo>> = derivedStateFlowOf(scope) {
+        editable {
             LoginInfo(
-                host = host,
-                port = port,
-                clientId = clientId,
-                protocol = protocol,
-                auth = auth,
+                host = host.editable.state.bind(),
+                port = port.editable.state.bind(),
+                clientId = clientId.editable.state.bind(),
+                protocol = protocol.editable.state.bind(),
+                auth = auth.state?.auth?.state?.bind(),
             )
         }
+    }
 
     val login: StateFlow<ActionOrElse<Unit, CancelOrInProgress.Cancel>?> = loginInfo
         .flatMapWithScope(

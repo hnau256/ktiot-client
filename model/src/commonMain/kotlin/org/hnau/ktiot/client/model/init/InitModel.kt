@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.hnau.commons.app.model.goback.GoBackHandler
-import org.hnau.commons.app.model.goback.NeverGoBackHandler
 import org.hnau.commons.app.model.preferences.Preferences
 import org.hnau.commons.app.model.preferences.map
 import org.hnau.commons.app.model.preferences.withDefault
@@ -14,6 +13,7 @@ import org.hnau.commons.kotlin.Loadable
 import org.hnau.commons.kotlin.LoadableStateFlow
 import org.hnau.commons.kotlin.Loading
 import org.hnau.commons.kotlin.Ready
+import org.hnau.commons.kotlin.coroutines.flow.state.derivedStateFlowOf
 import org.hnau.commons.kotlin.coroutines.flow.state.flatMapState
 import org.hnau.commons.kotlin.coroutines.flow.state.mapState
 import org.hnau.commons.kotlin.coroutines.flow.state.mapWithScope
@@ -150,12 +150,10 @@ class InitModel(
             }
     }
 
-    val goBackHandler: GoBackHandler = state
-        .scopedInState(scope)
-        .flatMapState(scope) { (stateScope, stateOrLoading) ->
-            stateOrLoading.fold(
-                ifLoading = { NeverGoBackHandler },
-                ifReady = { state -> state.goBackHandler }
-            )
-        }
+    val goBackHandler: GoBackHandler = derivedStateFlowOf(scope) {
+        state.state.fold(
+            ifLoading = { null },
+            ifReady = { it.goBackHandler.state },
+        )
+    }
 }

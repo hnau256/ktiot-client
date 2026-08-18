@@ -13,10 +13,8 @@ import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.coroutines.ActionOrElse
 import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
 import org.hnau.commons.kotlin.coroutines.actionOrInProgressIfExecuting
-import org.hnau.commons.kotlin.coroutines.flow.state.flatMapState
-import org.hnau.commons.kotlin.coroutines.flow.state.mapState
+import org.hnau.commons.kotlin.coroutines.flow.state.derivedStateFlowOf
 import org.hnau.commons.kotlin.coroutines.flow.state.mapWithScope
-import org.hnau.commons.kotlin.coroutines.flow.state.scopedInState
 import org.hnau.commons.kotlin.getOrInit
 import org.hnau.commons.kotlin.invoke
 import org.hnau.commons.kotlin.serialization.MutableStateFlowSerializer
@@ -119,29 +117,27 @@ class LoggedModel(
             }
         }
 
-    val goBackHandler: GoBackHandler = state
-        .scopedInState(scope)
-        .flatMapState(scope) { (stateScope, state) ->
-            when (state) {
-                is State.Connected -> state.model.goBackHandler
+    val goBackHandler: GoBackHandler = derivedStateFlowOf(scope) {
+        when (val s = state.state) {
+            is State.Connected -> s.model.goBackHandler.state
 
-                is State.Connecting -> state.logout.mapState(stateScope) { logout ->
-                    {
-                        when (logout) {
-                            is ActionOrElse.Action -> logout.action()
-                            is ActionOrElse.Else -> Unit
-                        }
+            is State.Connecting -> s.logout.state.let { logout ->
+                {
+                    when (logout) {
+                        is ActionOrElse.Action -> logout.action()
+                        is ActionOrElse.Else -> Unit
                     }
                 }
+            }
 
-                is State.WaitingForReconnection -> state.logout.mapState(stateScope) { logout ->
-                    {
-                        when (logout) {
-                            is ActionOrElse.Action -> logout.action()
-                            is ActionOrElse.Else -> Unit
-                        }
+            is State.WaitingForReconnection -> s.logout.state.let { logout ->
+                {
+                    when (logout) {
+                        is ActionOrElse.Action -> logout.action()
+                        is ActionOrElse.Else -> Unit
                     }
                 }
             }
         }
+    }
 }
