@@ -35,6 +35,7 @@ import org.hnau.commons.kotlin.map
 import org.hnau.commons.kotlin.valueOrElse
 import org.hnau.ktiot.client.model.screen.ScreenItemModel
 import org.hnau.ktiot.client.model.screen.ScreenModel
+import org.hnau.ktiot.client.model.screen.fold
 import org.hnau.ktiot.client.model.utils.ChildTopic
 import org.hnau.ktiot.client.projector.property.PropertyProjector
 import org.hnau.ktiot.client.projector.screen.ScreenItemProjector.ChildButton
@@ -119,21 +120,25 @@ class ScreenProjector(
                                 State.Items.Item(
                                     scope = itemScope,
                                     topic = topic,
-                                    projector = when (val itemModel = itemModel.model) {
-                                        is ScreenItemModel.Property -> Property(
-                                            projector = PropertyProjector(
-                                                scope = itemScope,
-                                                dependencies = dependencies.property(),
-                                                model = itemModel.model,
+                                    projector = itemModel.model.fold(
+                                        ifProperty = { propertyModel ->
+                                            Property(
+                                                projector = PropertyProjector(
+                                                    scope = itemScope,
+                                                    dependencies = dependencies.property(),
+                                                    model = propertyModel,
+                                                )
                                             )
-                                        )
+                                        },
 
-                                        is ScreenItemModel.ChildButton -> ChildButton(
-                                            topic = topic,
-                                            title = itemModel.title,
-                                            onClick = { model.openChild(topic) },
-                                        )
-                                    }
+                                        ifChildButton = { title ->
+                                            ChildButton(
+                                                topic = topic,
+                                                title = title,
+                                                onClick = { model.openChild(topic) },
+                                            )
+                                        },
+                                    )
                                 )
                             }
                         },
@@ -189,9 +194,11 @@ class ScreenProjector(
                     stateLocal.fold(
                         ifChild = { _, projector -> projector.Content() },
 
-                        ifItems = { items -> Items(
-                            items = items,
-                        ) },
+                        ifItems = { items ->
+                            Items(
+                                items = items,
+                            )
+                        },
                     )
                 }
             }

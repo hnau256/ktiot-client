@@ -30,6 +30,7 @@ import org.hnau.ktiot.client.model.property.value.editable.NumberViewModel
 import org.hnau.ktiot.client.model.property.value.editable.TextEditModel
 import org.hnau.ktiot.client.model.property.value.editable.TextViewModel
 import org.hnau.ktiot.client.model.property.value.editable.ViewModel
+import org.hnau.ktiot.client.model.property.value.editable.fold
 import org.hnau.ktiot.client.projector.property.value.editable.ContentProjector
 import org.hnau.ktiot.client.projector.property.value.editable.NumberEditProjector
 import org.hnau.ktiot.client.projector.property.value.editable.NumberViewProjector
@@ -85,19 +86,23 @@ class EditableProjector<
             when (state) {
                 is EditableModel.State.View -> State.View(
                     edit = state.edit,
-                    projector = when (val model = state.model) {
-                        is TextViewModel -> TextViewProjector(
-                            scope = stateScope,
-                            dependencies = dependencies.textView(),
-                            model = model
-                        )
+                    projector = state.model.fold(
+                        ifTextViewModel = { model ->
+                            TextViewProjector(
+                                scope = stateScope,
+                                dependencies = dependencies.textView(),
+                                model = model
+                            )
+                        },
 
-                        is NumberViewModel -> NumberViewProjector(
-                            scope = stateScope,
-                            dependencies = dependencies.numberView(),
-                            model = model
-                        )
-                    }
+                        ifNumberViewModel = { model ->
+                            NumberViewProjector(
+                                scope = stateScope,
+                                dependencies = dependencies.numberView(),
+                                model = model
+                            )
+                        }
+                    )
                 )
 
                 is EditableModel.State.Edit -> State.Edit(

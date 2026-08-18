@@ -5,8 +5,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 import org.hnau.commons.app.model.goback.GoBackHandler
+import org.hnau.commons.gen.fold.annotations.Fold
 import org.hnau.ktiot.scheme.PropertyType
 
+@Fold
 sealed interface ViewModel {
 
     fun interface Factory<T, P : PropertyType.State<T>, D, S : Skeleton, M : ViewModel> {
