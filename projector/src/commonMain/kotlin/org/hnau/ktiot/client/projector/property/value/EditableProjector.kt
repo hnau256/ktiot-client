@@ -18,6 +18,7 @@ import org.hnau.commons.app.projector.fractal.table.STableScope
 import org.hnau.commons.app.projector.utils.Drawable
 import org.hnau.commons.app.projector.utils.Icon
 import org.hnau.commons.app.projector.utils.TitleOrIcon
+import org.hnau.commons.gen.fold.annotations.Fold
 import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.coroutines.ActionOrElse
 import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
@@ -61,6 +62,7 @@ class EditableProjector<
 
     }
 
+    @Fold
     sealed interface State {
 
         val projector: ContentProjector

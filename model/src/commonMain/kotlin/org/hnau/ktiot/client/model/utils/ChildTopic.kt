@@ -1,7 +1,9 @@
 package org.hnau.ktiot.client.model.utils
 
+import org.hnau.commons.gen.fold.annotations.Fold
 import org.hnau.ktiot.mqtt.types.topic.Topic
 
+@Fold
 sealed interface ChildTopic {
 
     val topic: Topic.Absolute

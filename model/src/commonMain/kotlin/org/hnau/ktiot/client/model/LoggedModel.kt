@@ -9,10 +9,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import org.hnau.commons.app.model.goback.GoBackHandler
+import org.hnau.commons.gen.fold.annotations.Fold
 import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.coroutines.ActionOrElse
 import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
 import org.hnau.commons.kotlin.coroutines.actionOrInProgressIfExecuting
+import org.hnau.commons.kotlin.coroutines.fold
 import org.hnau.commons.kotlin.coroutines.flow.state.derivedStateFlowOf
 import org.hnau.commons.kotlin.coroutines.flow.state.mapWithScope
 import org.hnau.commons.kotlin.getOrInit
@@ -44,6 +46,7 @@ class LoggedModel(
         ): ConnectedModel.Dependencies
     }
 
+    @Fold
     sealed interface State {
 
         data class Connecting(
@@ -121,23 +124,15 @@ class LoggedModel(
         when (val s = state.state) {
             is State.Connected -> s.model.goBackHandler.state
 
-            is State.Connecting -> s.logout.state.let { logout ->
-                {
-                    when (logout) {
-                        is ActionOrElse.Action -> logout.action()
-                        is ActionOrElse.Else -> Unit
-                    }
-                }
-            }
+            is State.Connecting -> s.logout.state.fold(
+                ifAction = { action -> { action() } },
+                ifElse = { {} },
+            )
 
-            is State.WaitingForReconnection -> s.logout.state.let { logout ->
-                {
-                    when (logout) {
-                        is ActionOrElse.Action -> logout.action()
-                        is ActionOrElse.Else -> Unit
-                    }
-                }
-            }
+            is State.WaitingForReconnection -> s.logout.state.fold(
+                ifAction = { action -> { action() } },
+                ifElse = { {} },
+            )
         }
     }
 }

@@ -24,6 +24,7 @@ import org.hnau.commons.app.projector.uikit.transition.getTransitionSpecForSlide
 import org.hnau.commons.app.projector.uikit.utils.Dimens
 import org.hnau.commons.app.projector.utils.Orientation
 import org.hnau.commons.app.projector.utils.plus
+import org.hnau.commons.gen.fold.annotations.Fold
 import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.Loadable
 import org.hnau.commons.kotlin.coroutines.createChild
@@ -54,8 +55,9 @@ class ScreenProjector(
         fun property(): PropertyProjector.Dependencies
     }
 
+    @Fold
     @Immutable
-    private sealed interface State {
+    sealed interface State {
 
         @Immutable
         data class Child(

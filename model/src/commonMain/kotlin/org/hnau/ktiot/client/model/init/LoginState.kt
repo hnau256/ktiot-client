@@ -2,7 +2,9 @@ package org.hnau.ktiot.client.model.init
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.hnau.commons.gen.fold.annotations.Fold
 
+@Fold
 @Serializable
 sealed interface LoginState {
 

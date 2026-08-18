@@ -25,6 +25,7 @@ import org.hnau.commons.app.projector.uikit.state.StateContent
 import org.hnau.commons.app.projector.uikit.transition.TransitionSpec
 import org.hnau.commons.app.projector.uikit.utils.Dimens
 import org.hnau.commons.app.projector.utils.TitleOrIcon
+import org.hnau.commons.gen.fold.annotations.Fold
 import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.coroutines.ActionOrElse
 import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
@@ -53,6 +54,7 @@ class LoggedProjector(
         fun connected(): ConnectedProjector.Dependencies
     }
 
+    @Fold
     @Immutable
     sealed interface State {
 
