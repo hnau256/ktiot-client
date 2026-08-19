@@ -21,6 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import org.hnau.commons.app.projector.fractal.SButton
 import org.hnau.commons.app.projector.fractal.SContentWithActions
+import org.hnau.commons.app.projector.fractal.SIcon
 import org.hnau.commons.app.projector.fractal.SScreen
 import org.hnau.commons.app.projector.fractal.SText
 import org.hnau.commons.app.projector.fractal.input.InputProjector
@@ -65,7 +66,7 @@ class LoginProjector(
         .createInputProjector(
             scope = scope,
             title = dependencies.localization.address,
-            icon = Drawable.Vector(Icons.Default.Public),
+            startAccessory = { SIcon(Drawable.Vector(Icons.Default.Public)) },
         ) { _, _ -> dependencies.localization.addressIsIncorrectError }
 
     private val port: InputProjector = model
@@ -78,7 +79,6 @@ class LoginProjector(
         .createInputProjector(
             scope = scope,
             title = dependencies.localization.port,
-            icon = null,
         ) { _, _ -> dependencies.localization.portIsIncorrectError }
 
     private val protocol: InputProjector = model
@@ -87,7 +87,7 @@ class LoginProjector(
         .createInputProjector(
             scope = scope,
             title = dependencies.localization.protocol,
-            icon = Drawable.Vector(Icons.Default.Translate),
+            startAccessory = { SIcon(Drawable.Vector(Icons.Default.Translate)) },
         )
 
     private val clientId: InputProjector = model
@@ -99,7 +99,7 @@ class LoginProjector(
         .createInputProjector(
             scope = scope,
             title = dependencies.localization.client_id,
-            icon = Drawable.Vector(Icons.Default.Badge),
+            startAccessory = { SIcon(Drawable.Vector(Icons.Default.Badge)) },
         ) { _, _ -> dependencies.localization.clientIdIsEmptyError }
 
     private val useCredentials: InputProjector = model
@@ -108,7 +108,7 @@ class LoginProjector(
         .createInputProjector(
             scope = scope,
             title = dependencies.localization.credentials,
-            icon = Drawable.Vector(Icons.Default.Shield),
+            startAccessory = { SIcon(Drawable.Vector(Icons.Default.Shield)) },
         )
 
     private val auth: StateFlow<LoginAuthProjector?> = model

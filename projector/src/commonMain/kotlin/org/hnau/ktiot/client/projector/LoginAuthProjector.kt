@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import kotlinx.coroutines.CoroutineScope
+import org.hnau.commons.app.projector.fractal.SIcon
 import org.hnau.commons.app.projector.fractal.input.InputProjector
 import org.hnau.commons.app.projector.fractal.input.type.toInputProjectorPrototype
 import org.hnau.commons.app.projector.fractal.table.STableScope
@@ -38,7 +39,7 @@ class LoginAuthProjector(
         .createInputProjector(
             scope = scope,
             title = dependencies.localization.user,
-            icon = Drawable.Vector(Icons.Default.Person),
+            startAccessory = { SIcon(Drawable.Vector(Icons.Default.Person)) },
         ) { _, _ -> dependencies.localization.userIsEmptyError }
 
     private val password: InputProjector = model
@@ -50,7 +51,7 @@ class LoginAuthProjector(
         .createInputProjector(
             scope = scope,
             title = dependencies.localization.password,
-            icon = Drawable.Vector(Icons.Default.Password),
+            startAccessory = { SIcon(Drawable.Vector(Icons.Default.Password)) },
         ) { _, _ -> dependencies.localization.passwordIsEmptyError }
 
     fun SLazyTableScope.Content() {
