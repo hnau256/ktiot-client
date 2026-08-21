@@ -5,6 +5,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 import org.hnau.commons.app.model.goback.GoBackHandler
 import org.hnau.commons.app.model.goback.NeverGoBackHandler
+import org.hnau.commons.app.model.input.InputType
+import org.hnau.commons.app.model.input.factory.createSkeleton
+import org.hnau.commons.app.model.input.factory.toInputModelFactory
 import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.Loadable
 import org.hnau.commons.kotlin.coroutines.flow.state.flatMapState

@@ -147,8 +147,7 @@ class LoginModel(
 
     val useCredentials: InputStateHolder<Boolean, Nothing, InputType.Flag> =
         object : InputStateHolder<Boolean, Nothing, InputType.Flag> {
-            override val enabled: StateFlow<Boolean> =
-                true.toMutableStateFlowAsInitial()
+
             override val type: InputType.Flag
                 get() = InputType.Flag
 
@@ -160,17 +159,17 @@ class LoginModel(
                     )
                 }
 
-            override fun updateState(
-                newState: Boolean,
-            ) {
-                skeleton.auth.update { authOrNull ->
-                    val currentState = authOrNull != null
-                    if (currentState == newState) {
-                        return
+            override val updateState: StateFlow<((Boolean) -> Unit)?> = { newState: Boolean ->
+                run {
+                    skeleton.auth.update { authOrNull ->
+                        val currentState = authOrNull != null
+                        if (currentState == newState) {
+                            return@run
+                        }
+                        newState.ifTrue { LoginAuthModel.Skeleton.createForNew() }
                     }
-                    newState.ifTrue { LoginAuthModel.Skeleton.createForNew() }
                 }
-            }
+            }.toMutableStateFlowAsInitial()
 
         }
 
