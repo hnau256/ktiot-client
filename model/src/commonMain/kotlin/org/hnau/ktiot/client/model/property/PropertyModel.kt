@@ -6,15 +6,15 @@ import kotlinx.serialization.Serializable
 import org.hnau.commons.app.model.goback.GoBackHandler
 import org.hnau.commons.app.model.goback.NeverGoBackHandler
 import org.hnau.commons.app.model.input.InputType
-import org.hnau.commons.app.model.input.factory.createSkeleton
-import org.hnau.commons.app.model.input.factory.toInputModelFactory
 import org.hnau.commons.gen.pipe.annotations.Pipe
 import org.hnau.commons.kotlin.Loadable
+import org.hnau.commons.kotlin.coroutines.ActionOrElse
+import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
 import org.hnau.commons.kotlin.coroutines.flow.state.flatMapState
 import org.hnau.commons.kotlin.fold
 import org.hnau.ktiot.client.model.property.value.EditableModel
-import org.hnau.ktiot.client.model.property.value.FlagModel
-import org.hnau.ktiot.client.model.property.value.FractionModel
+import org.hnau.ktiot.client.model.property.value.InlineModel
+import org.hnau.ktiot.client.model.property.value.InlineModel.Flag
 import org.hnau.ktiot.client.model.property.value.ValueModel
 import org.hnau.ktiot.client.model.property.value.createEditableModel
 import org.hnau.ktiot.client.model.property.value.createValueModel
@@ -45,9 +45,7 @@ class PropertyModel(
 
         val mqttClient: MqttSession
 
-        fun flag(): FlagModel.Dependencies
-
-        fun fraction(): FractionModel.Dependencies
+        fun inline(): InlineModel.Dependencies
 
         fun editable(): EditableModel.Dependencies
     }
@@ -63,20 +61,14 @@ class PropertyModel(
     val value: StateFlow<Loadable<Result<ValueModel>>> = when (val type = property.type) {
         is PropertyType.Events -> TODO()
         is PropertyType.State -> when (type) {
-            is PropertyType.State.Fraction -> createValueModel(
-                valueModelFactory = FractionModel.factory,
-                createInitialSkeleton = { FractionModel.Skeleton() },
-                extractDependencies = Dependencies::fraction,
-                type = type,
-            )
+            is PropertyType.State.Fraction -> TODO()
 
             is PropertyType.State.Enum -> TODO()
 
-            is PropertyType.State.Flag -> createValueModel(
-                valueModelFactory = FlagModel.factory,
-                createInitialSkeleton = { FlagModel.Skeleton() },
-                extractDependencies = Dependencies::flag,
-                type = type,
+            is PropertyType.State.Flag -> createInlineModel<Boolean, PropertyType.State.Flag, InputType.Flag, InlineModel.Flag> (
+                propertyType = PropertyType.State.Flag,
+                inlineType = InputType.Flag,
+                createInlineModel = ::Flag,
             )
 
             is PropertyType.State.Number -> createEditableModel(
@@ -101,8 +93,40 @@ class PropertyModel(
         }
     }
 
+    private inline fun <reified T, P : PropertyType.State<T>, reified I : InputType<T>, reified M: InlineModel<T, I>> createInlineModel(
+        propertyType: P,
+        inlineType: I,
+        crossinline createInlineModel: (
+            scope: CoroutineScope,
+            value: StateFlow<T>,
+            publish: StateFlow<ActionOrElse<T, CancelOrInProgress.InProgress>>,
+            type: I,
+            mutable: Boolean,
+        ) -> M,
+    ): StateFlow<Loadable<Result<M>>> = createValueModel(
+        createInitialSkeleton = { InlineModel.Skeleton() },
+        extractDependencies = { inline() },
+        valueModelFactory = { scope, _, _, flow, publish, bool ->
+            createInlineModel(
+                scope,
+                flow,
+                publish,
+                inlineType,
+                bool,
+            )
+        },
+        type = propertyType,
+    )
+
     private inline fun <reified T, P : PropertyType.State<T>, D, reified S : ValueModel.Skeleton, M : ValueModel> createValueModel(
-        valueModelFactory: ValueModel.Factory<T, P, D, S, M>,
+        crossinline valueModelFactory: (
+            scope: CoroutineScope,
+            dependencies: D,
+            skeleton: S,
+            value: StateFlow<T>,
+            publish: StateFlow<ActionOrElse<T, CancelOrInProgress.InProgress>>,
+            mutable: Boolean
+        ) -> M,
         crossinline createInitialSkeleton: () -> S,
         crossinline extractDependencies: Dependencies.() -> D,
         type: P,

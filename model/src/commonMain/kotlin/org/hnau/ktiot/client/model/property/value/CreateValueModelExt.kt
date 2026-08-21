@@ -15,6 +15,8 @@ import kotlinx.serialization.json.Json
 import org.hnau.commons.kotlin.Loadable
 import org.hnau.commons.kotlin.Loading
 import org.hnau.commons.kotlin.Ready
+import org.hnau.commons.kotlin.coroutines.ActionOrElse
+import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
 import org.hnau.commons.kotlin.coroutines.flow.state.Stickable
 import org.hnau.commons.kotlin.coroutines.flow.state.combineState
 import org.hnau.commons.kotlin.coroutines.flow.state.mapState
@@ -68,15 +70,23 @@ inline fun <
         )
     },
     extractDependencies = { editable() },
-    valueModelFactory = EditableModel.Factory(
-        createViewModelSkeleton = createViewModelSkeleton,
-        extractViewDependencies = extractViewDependencies,
-        viewFactory = viewFactory,
-        type = type,
-        createEditModelSkeleton = createEditModelSkeleton,
-        extractEditDependencies = extractEditDependencies,
-        editFactory = editFactory,
-    ),
+    valueModelFactory = { scope, dependencies, skeleton, value, publish, mutable ->
+        EditableModel(
+            scope = scope,
+            dependencies = dependencies,
+            skeleton = skeleton,
+            value = value,
+            publish = publish,
+            mutable = mutable,
+            createViewModelSkeleton = createViewModelSkeleton,
+            extractViewDependencies = extractViewDependencies,
+            viewFactory = viewFactory,
+            type = type,
+            createEditModelSkeleton = createEditModelSkeleton,
+            extractEditDependencies = extractEditDependencies,
+            editFactory = editFactory,
+        )
+    },
     type = type,
     mode = mode,
 )
@@ -88,7 +98,14 @@ inline fun <reified T, P : PropertyType.State<T>, D, reified S : ValueModel.Skel
     topic: ChildTopic,
     crossinline createInitialSkeleton: () -> S,
     crossinline extractDependencies: PropertyModel.Dependencies.() -> D,
-    valueModelFactory: ValueModel.Factory<T, D, S, M>,
+    crossinline valueModelFactory: (
+        scope: CoroutineScope,
+        dependencies: D,
+        skeleton: S,
+        value: StateFlow<T>,
+        publish: StateFlow<ActionOrElse<T, CancelOrInProgress.InProgress>>,
+        mutable: Boolean
+    ) -> M,
     type: P,
     mode: PropertyMode,
 ): StateFlow<Loadable<Result<M>>> = dependencies
@@ -160,21 +177,17 @@ inline fun <reified T, P : PropertyType.State<T>, D, reified S : ValueModel.Skel
                                             }
                                         }
 
-                                        valueModelFactory.createValueModel(
-                                            scope = stickableScope,
-                                            dependencies = dependencies.extractDependencies(),
-                                            skeleton = skeleton::value
+                                        valueModelFactory(
+                                            stickableScope,
+                                            dependencies.extractDependencies(),
+                                            skeleton::value
                                                 .toAccessor()
                                                 .shrinkType<_, S>()
                                                 .getOrInit { createInitialSkeleton() },
-                                            value = valuesOrOverwritten.mapState(
+                                            valuesOrOverwritten.mapState(
                                                 stickableScope
                                             ) { it.first },
-                                            mutable = when (mode) {
-                                                PropertyMode.Manual -> true
-                                                PropertyMode.Hardware, PropertyMode.Calculated -> false
-                                            },
-                                            publish = operationOrInProgressIfExecuting(
+                                            operationOrInProgressIfExecuting(
                                                 stickableScope
                                             ) { _, valueToSend ->
                                                 val payload = logger
@@ -204,8 +217,11 @@ inline fun <reified T, P : PropertyType.State<T>, D, reified S : ValueModel.Skel
                                                     val overwritten = it.second
                                                     !overwritten
                                                 }
-                                            }
-
+                                            },
+                                            when (mode) {
+                                                PropertyMode.Manual -> true
+                                                PropertyMode.Hardware, PropertyMode.Calculated -> false
+                                            },
                                         )
                                             .let(Result.Companion::success)
                                             .let(::Ready)

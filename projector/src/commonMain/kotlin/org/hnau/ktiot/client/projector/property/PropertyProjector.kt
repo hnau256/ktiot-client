@@ -1,25 +1,18 @@
 package org.hnau.ktiot.client.projector.property
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import org.hnau.commons.app.projector.fractal.SIcon
 import org.hnau.commons.app.projector.fractal.SPanel
 import org.hnau.commons.app.projector.fractal.SText
 import org.hnau.commons.app.projector.fractal.context.FContext
-import org.hnau.commons.app.projector.fractal.distance.LocalDistance
-import org.hnau.commons.app.projector.fractal.size.units
 import org.hnau.commons.app.projector.fractal.table.STable
 import org.hnau.commons.app.projector.fractal.table.STableScope
 import org.hnau.commons.app.projector.fractal.table.Subtable
@@ -37,11 +30,9 @@ import org.hnau.commons.kotlin.foldBoolean
 import org.hnau.commons.kotlin.map
 import org.hnau.ktiot.client.model.property.PropertyModel
 import org.hnau.ktiot.client.model.property.value.EditableModel
-import org.hnau.ktiot.client.model.property.value.FlagModel
-import org.hnau.ktiot.client.model.property.value.FractionModel
+import org.hnau.ktiot.client.model.property.value.InlineModel
 import org.hnau.ktiot.client.projector.property.value.EditableProjector
-import org.hnau.ktiot.client.projector.property.value.FlagProjector
-import org.hnau.ktiot.client.projector.property.value.FractionProjector
+import org.hnau.ktiot.client.projector.property.value.InlineProjector
 import org.hnau.ktiot.client.projector.property.value.ValueProjector
 
 @Immutable
@@ -55,9 +46,7 @@ class PropertyProjector(
     @Pipe
     interface Dependencies {
 
-        fun flag(): FlagProjector.Dependencies
-
-        fun fraction(): FractionProjector.Dependencies
+        fun inline(): InlineProjector.Dependencies
 
         fun editable(): EditableProjector.Dependencies
     }
@@ -72,16 +61,10 @@ class PropertyProjector(
                 .map { valueOrError ->
                     valueOrError.map { value ->
                         when (value) {
-                            is FractionModel -> FractionProjector(
+                            is InlineModel<*, *> -> InlineProjector(
                                 scope = valueScope,
                                 model = value,
-                                dependencies = dependencies.fraction(),
-                            )
-
-                            is FlagModel -> FlagProjector(
-                                scope = valueScope,
-                                model = value,
-                                dependencies = dependencies.flag(),
+                                dependencies = dependencies.inline(),
                             )
 
                             is EditableModel<*, *, *, *, *, *, *, *> -> EditableProjector(
