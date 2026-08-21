@@ -67,6 +67,20 @@ sealed class InlineModel<T, I : InputType<T>>(
                 }
         }
 
+    class Fraction(
+        scope: CoroutineScope,
+        value: StateFlow<Float>,
+        publish: StateFlow<ActionOrElse<Float, CancelOrInProgress.InProgress>>,
+        type: InputType.Fraction<Float>,
+        mutable: Boolean,
+    ) : InlineModel<Float, InputType.Fraction<Float>>(
+        scope = scope,
+        value = value,
+        publish = publish,
+        type = type,
+        mutable = mutable,
+    )
+
     class Flag(
         scope: CoroutineScope,
         value: StateFlow<Boolean>,

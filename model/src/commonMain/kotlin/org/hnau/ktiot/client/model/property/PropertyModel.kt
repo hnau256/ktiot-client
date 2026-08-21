@@ -15,6 +15,7 @@ import org.hnau.commons.kotlin.fold
 import org.hnau.ktiot.client.model.property.value.EditableModel
 import org.hnau.ktiot.client.model.property.value.InlineModel
 import org.hnau.ktiot.client.model.property.value.InlineModel.Flag
+import org.hnau.ktiot.client.model.property.value.InlineModel.Fraction
 import org.hnau.ktiot.client.model.property.value.ValueModel
 import org.hnau.ktiot.client.model.property.value.createEditableModel
 import org.hnau.ktiot.client.model.property.value.createValueModel
@@ -61,12 +62,16 @@ class PropertyModel(
     val value: StateFlow<Loadable<Result<ValueModel>>> = when (val type = property.type) {
         is PropertyType.Events -> TODO()
         is PropertyType.State -> when (type) {
-            is PropertyType.State.Fraction -> TODO()
+            is PropertyType.State.Fraction -> createInlineModel<Float, PropertyType.State.Fraction, InputType.Fraction<Float>, Fraction> (
+                propertyType = type,
+                inlineType = InputType.Fraction(type.range),
+                createInlineModel = ::Fraction,
+            )
 
             is PropertyType.State.Enum -> TODO()
 
-            is PropertyType.State.Flag -> createInlineModel<Boolean, PropertyType.State.Flag, InputType.Flag, InlineModel.Flag> (
-                propertyType = PropertyType.State.Flag,
+            is PropertyType.State.Flag -> createInlineModel<Boolean, PropertyType.State.Flag, InputType.Flag, Flag> (
+                propertyType = type,
                 inlineType = InputType.Flag,
                 createInlineModel = ::Flag,
             )
