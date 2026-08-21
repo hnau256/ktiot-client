@@ -72,6 +72,7 @@ inline fun <
         createViewModelSkeleton = createViewModelSkeleton,
         extractViewDependencies = extractViewDependencies,
         viewFactory = viewFactory,
+        type = type,
         createEditModelSkeleton = createEditModelSkeleton,
         extractEditDependencies = extractEditDependencies,
         editFactory = editFactory,
@@ -87,7 +88,7 @@ inline fun <reified T, P : PropertyType.State<T>, D, reified S : ValueModel.Skel
     topic: ChildTopic,
     crossinline createInitialSkeleton: () -> S,
     crossinline extractDependencies: PropertyModel.Dependencies.() -> D,
-    valueModelFactory: ValueModel.Factory<T, P, D, S, M>,
+    valueModelFactory: ValueModel.Factory<T, D, S, M>,
     type: P,
     mode: PropertyMode,
 ): StateFlow<Loadable<Result<M>>> = dependencies
@@ -169,7 +170,6 @@ inline fun <reified T, P : PropertyType.State<T>, D, reified S : ValueModel.Skel
                                             value = valuesOrOverwritten.mapState(
                                                 stickableScope
                                             ) { it.first },
-                                            type = type,
                                             mutable = when (mode) {
                                                 PropertyMode.Manual -> true
                                                 PropertyMode.Hardware, PropertyMode.Calculated -> false

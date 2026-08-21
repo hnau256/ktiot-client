@@ -59,6 +59,7 @@ class EditableModel<
             V : ViewModel, VS : ViewModel.Skeleton, VD,
             E : EditModel<T>, ES : EditModel.Skeleton, ED,
             >(
+        private val type: P,
         private val createViewModelSkeleton: () -> VS,
         private val extractViewDependencies: Dependencies.() -> VD,
         private val viewFactory: ViewModel.Factory<T, P, VD, VS, V>,
@@ -66,7 +67,7 @@ class EditableModel<
         private val extractEditDependencies: Dependencies.() -> ED,
         private val editFactory: EditModel.Factory<T, P, ED, ES, E>,
     ) : ValueModel.Factory<
-            T, P, Dependencies, Skeleton<VS, ES>,
+            T, Dependencies, Skeleton<VS, ES>,
             EditableModel<T, P, V, VS, VD, E, ES, ED>
             > {
 
@@ -76,7 +77,6 @@ class EditableModel<
             skeleton: Skeleton<VS, ES>,
             value: StateFlow<T>,
             publish: StateFlow<ActionOrElse<T, CancelOrInProgress.InProgress>>,
-            type: P,
             mutable: Boolean,
         ): EditableModel<T, P, V, VS, VD, E, ES, ED> = EditableModel(
             scope = scope,

@@ -18,40 +18,55 @@ import org.hnau.commons.kotlin.coroutines.flow.state.mapState
 import org.hnau.commons.kotlin.coroutines.flow.state.mutable.toMutableStateFlowAsInitial
 import org.hnau.commons.kotlin.coroutines.fold
 import org.hnau.commons.kotlin.foldBoolean
+import org.hnau.ktiot.scheme.PropertyType
 
-class FlagModel(
+class InlineModel<T, P: PropertyType.State<T>, I: InputType<T>, V: InlineType<T, P, I>>(
     private val scope: CoroutineScope,
-    dependencies: Dependencies,
-    skeleton: Skeleton,
-    value: StateFlow<Boolean>,
-    publish: StateFlow<ActionOrElse<Boolean, CancelOrInProgress.InProgress>>,
+    value: StateFlow<T>,
+    publish: StateFlow<ActionOrElse<T, CancelOrInProgress.InProgress>>,
+    type: V,
     mutable: Boolean,
 ) : ValueModel {
 
     companion object {
 
-        val factory: ValueModel.Factory<Boolean, Dependencies, Skeleton, FlagModel> =
-            ValueModel.Factory(::FlagModel)
+        fun <T, P: PropertyType.State<T>, I: InputType<T>, V: InlineType<T, P, I>> createFactory(
+            type: V,
+        ): ValueModel.Factory<T, Dependencies, Skeleton, InlineModel<T, P, I, V>> = ValueModel.Factory<T, Dependencies, Skeleton, InlineModel<T, P, I, V>> {
+                scope: CoroutineScope,
+                _: Dependencies,
+                _: Skeleton,
+                value: StateFlow<T>,
+                publish: StateFlow<ActionOrElse<T, CancelOrInProgress.InProgress>>,
+                mutable: Boolean ->
+            InlineModel(
+                scope = scope,
+                value = value,
+                publish = publish,
+                type = type,
+                mutable = mutable,
+            )
+        }
     }
 
     @Pipe
     interface Dependencies
 
     @Serializable
-    @SerialName("flag")
+    @SerialName("inline")
     /*data*/ class Skeleton : ValueModel.Skeleton
 
-    val stateHolder: InputStateHolder<Boolean, Nothing, InputType.Flag> =
-        object : InputStateHolder<Boolean, Nothing, InputType.Flag> {
-            override val type: InputType.Flag
-                get() = InputType.Flag
+    val stateHolder: InputStateHolder<T, Nothing, I> =
+        object : InputStateHolder<T, Nothing, I> {
+            override val type: I
+                get() = type.input
 
-            override val stateWithErrorOrNone: StateFlow<KeyValue<Boolean, Option<Nothing>>> =
+            override val stateWithErrorOrNone: StateFlow<KeyValue<T, Option<Nothing>>> =
                 value.mapState(scope) { value ->
                     KeyValue(value, None)
                 }
 
-            override val updateState: StateFlow<((Boolean) -> Unit)?> = mutable.foldBoolean(
+            override val updateState: StateFlow<((T) -> Unit)?> = mutable.foldBoolean(
                 ifFalse = { null.toMutableStateFlowAsInitial() },
                 ifTrue = {
                     publish.mapState(scope) { publishOrElse ->

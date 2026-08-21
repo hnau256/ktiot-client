@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
 import org.hnau.commons.app.model.goback.GoBackHandler
 import org.hnau.commons.kotlin.coroutines.ActionOrElse
 import org.hnau.commons.kotlin.coroutines.CancelOrInProgress
-import org.hnau.ktiot.scheme.PropertyType
 
 sealed interface ValueModel {
 
@@ -15,7 +14,7 @@ sealed interface ValueModel {
 
     val goBackHandler: GoBackHandler
 
-    fun interface Factory<T, P: PropertyType.State<T>, D, S: Skeleton, M: ValueModel> {
+    fun interface Factory<T, D, S: Skeleton, M: ValueModel> {
 
         fun createValueModel(
             scope: CoroutineScope,
@@ -23,7 +22,6 @@ sealed interface ValueModel {
             skeleton: S,
             value: StateFlow<T>,
             publish: StateFlow<ActionOrElse<T, CancelOrInProgress.InProgress>>,
-            type: P,
             mutable: Boolean
         ): M
     }
